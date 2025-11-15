@@ -1,7 +1,7 @@
 <h1 align="center">MPWA – WhatsApp Gateway Multi-Device</h1>
 
 <p align="center">
-  <strong>Laravel 11 + Node.js (Baileys)</strong><br/>
+  <strong>Laravel 12 + Node.js (Baileys)</strong><br/>
   Hybrid WhatsApp Automation Platform for high-volume and multi-user messaging
 </p>
 
@@ -20,7 +20,7 @@ Struktur utamanya berada pada dua service:
 
 ```
 ┌──────────────┐          HTTP / REST           ┌───────────────┐
-│ Laravel 11   │  <──────────────────────────> │ Node.js Worker │
+│ Laravel 12   │  <──────────────────────────> │ Node.js Worker │
 │ - Admin UI   │     Socket.IO (Realtime)      │ - Baileys MD    │
 │ - REST API   │  <──────────────────────────> │ - Message Flow  │
 │ - Database   │                               │ - Webhook Pump  │
@@ -47,7 +47,7 @@ Detail teknis setiap modul dapat dilihat pada `ANALISIS_SISTEM.md`.
 
 | Layer                | Tools                                                                 |
 |---------------------|-----------------------------------------------------------------------|
-| Web Backend / API   | Laravel 11, Sanctum, MySQL, Excel Import (maatwebsite/excel)          |
+| Web Backend / API   | Laravel 12, Sanctum, MySQL, Excel Import (maatwebsite/excel)          |
 | WhatsApp Worker     | Node.js 20+, @whiskeysockets/baileys, Express, Socket.IO, MySQL2       |
 | Realtime & Webhooks | Socket.IO, custom webhook dispatcher                                  |
 | Utilities           | OpenAI/Anthropic/Gemini SDK, Google APIs, Sharp, QRCode, Excel Export |
@@ -56,7 +56,7 @@ Detail teknis setiap modul dapat dilihat pada `ANALISIS_SISTEM.md`.
 
 ## 📦 Prasyarat
 
-- PHP 8.2+
+- PHP 8.4+
 - Composer 2.6+
 - Node.js 20+ & npm/yarn
 - MySQL 8 / MariaDB 10.6+

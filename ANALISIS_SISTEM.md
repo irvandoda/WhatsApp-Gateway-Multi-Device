@@ -3,9 +3,9 @@
 ## 📋 RINGKASAN EKSEKUTIF
 
 Website ini adalah **WhatsApp Gateway Multi-Device** yang dibangun dengan arsitektur hybrid:
-- **Backend Web**: Laravel 11 (PHP 8.4) untuk antarmuka admin dan API
+- **Backend Web**: Laravel 12 (PHP 8.4) untuk antarmuka admin dan API
 - **WhatsApp Server**: Node.js dengan library Baileys untuk koneksi WhatsApp
-- **Versi**: 10.0.0 (Laravel) / 9.5.6 (Node.js)
+- **Versi**: 12.0.0 (Laravel) / 9.5.6 (Node.js)
 - **Nama Produk**: MPWA (irvandoda.my.id WhatsApp Gateway)
 
 ---
@@ -15,8 +15,8 @@ Website ini adalah **WhatsApp Gateway Multi-Device** yang dibangun dengan arsite
 ### 1. **Stack Teknologi**
 
 #### Backend Web (Laravel)
-- **Framework**: Laravel 11.46 (LTS)
-- **PHP**: ^8.2 (server saat ini 8.4)
+- **Framework**: Laravel 12.x (LTS)
+- **PHP**: ^8.4
 - **Database**: MySQL (dari struktur migrations)
 - **Authentication**: Laravel Sanctum
 - **Localization**: mcamara/laravel-localization (Multi-bahasa)
@@ -495,6 +495,6 @@ Sistem ini cocok untuk:
 ---
 
 **Dibuat oleh:** irvandoda.my.id
-**Versi:** 10.0.0 (Laravel) / 9.5.6 (Node.js)
+**Versi:** 12.0.0 (Laravel) / 9.5.6 (Node.js)
 **License:** MIT (dengan license verification)
 

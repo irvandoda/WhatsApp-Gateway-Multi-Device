@@ -9,7 +9,7 @@ Ini adalah **WhatsApp Gateway Multi-Device** yang sangat lengkap dan profesional
 ## 🏗️ TEKNOLOGI YANG DIGUNAKAN
 
 ### Backend Web (Panel Admin)
-- **Laravel 11.46** di atas PHP 8.4 - Framework PHP modern
+- **Laravel 12.x** di atas PHP 8.4 - Framework PHP modern
 - **MySQL** - Database
 - **Laravel Sanctum** - Authentication
 - **Multi-language** - Support 5 bahasa (ID, EN, AR, ES, HI)
@@ -240,7 +240,7 @@ Ini adalah **WhatsApp Gateway Enterprise Grade** yang sangat lengkap dengan:
 - Enterprise dengan kebutuhan messaging scale besar
 
 ✅ **Teknologi Modern:**
-- Laravel 11 (PHP 8.4)
+- Laravel 12 (PHP 8.4)
 - Node.js dengan Baileys 6.7.21
 - Real-time dengan Socket.IO 4.8
 - Modern JavaScript (ES Modules)
@@ -249,7 +249,7 @@ Ini adalah **WhatsApp Gateway Enterprise Grade** yang sangat lengkap dengan:
 
 **Informasi Produk:**
 - **Nama:** MPWA (irvandoda.my.id WhatsApp Gateway)
-- **Versi:** 10.0.0 (Laravel) / 9.5.6 (Node.js)
+- **Versi:** 12.0.0 (Laravel) / 9.5.6 (Node.js)
 - **Developer:** irvandoda.my.id
 - **License:** MIT (dengan license verification)
 
