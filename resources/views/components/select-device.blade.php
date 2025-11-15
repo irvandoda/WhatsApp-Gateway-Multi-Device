@@ -1,46 +1,40 @@
-                               <li class="my-4">
-                                   <select class="form-control" id="device_idd" name="device_id">
-                                       <option value="" disabled selected>Select Device</option>
-                                       @foreach ($numbers as $device)
-                                           {{-- if session has selectedDevice and match = --}}
-                                           @if (Session::has('selectedDevice') && Session::get('selectedDevice')['device_body'] == $device->body)
-                                               {{-- make variable selected true --}}
-                                               <option value="{{ $device->id }}" selected>{{ $device->body }}
-                                                   ({{ $device->status }})</option>
-                                           @else
-                                               <option value="{{ $device->id }}">{{ $device->body }}
-                                                   ({{ $device->status }})</option>
-                                           @endif
-                                       @endforeach
-                                   </select>
-                               </li>
+<div class="mt-3">
+    <label for="device_idd" class="text-xs tracking-[0.25em] text-slate-500">{{ __('Select Device') }}</label>
+    <select id="device_idd" name="device_id"
+        class="mt-2 w-full rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30">
+        <option value="" disabled selected>{{ __('Choose from your pool') }}</option>
+        @foreach ($numbers as $device)
+            <option value="{{ $device->id }}"
+                @if (Session::has('selectedDevice') && Session::get('selectedDevice')['device_body'] == $device->body) selected @endif>
+                {{ $device->body }} ({{ $device->status }})
+            </option>
+        @endforeach
+    </select>
+</div>
 
-                               <script>
-                                   //  on select device
-                                   $('#device_idd').on('change', function() {
-                                       var device = $(this).val();
-                                       $.ajax({
-                                           url: "{{ route('home.setSessionSelectedDevice') }}",
-                                           type: "POST",
-                                           data: {
-                                               _token: "{{ csrf_token() }}",
-                                               device: device
-                                           },
-                                           success: function(data) { // reload page
-                                               if (data.error) {
-                                                   toastr.error(data.msg);
-                                                   // reload in 1 second
-                                                   setTimeout(function() {
-                                                       location.reload();
-                                                   }, 1000);
-                                               } else {
-                                                   toastr.success(data.msg);
-                                                   // reload in 1 second
-                                                   setTimeout(function() {
-                                                       location.reload();
-                                                   }, 1000);
-                                               }
-                                           }
-                                       });
-                                   });
-                               </script>
+<script>
+    $('#device_idd').on('change', function() {
+        var device = $(this).val();
+        $.ajax({
+            url: "{{ route('home.setSessionSelectedDevice') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                device: device
+            },
+            success: function(data) {
+                if (data.error) {
+                    toastr.error(data.msg);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    toastr.success(data.msg);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+            }
+        });
+    });
+</script>

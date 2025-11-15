@@ -1,156 +1,180 @@
-    <!--start sidebar -->
-    <aside class="sidebar-wrapper" data-simplebar="true">
-        <div class="sidebar-header">
-            <div>
-                <img src="{{ asset('assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
+@php
+    $baseNav = [
+        [
+            'label' => __('Dashboard'),
+            'route' => route('home'),
+            'active' => request()->is('home'),
+            'icon' => 'M4 6h16M4 12h10M4 18h16',
+        ],
+        [
+            'label' => __('File Manager'),
+            'route' => route('file-manager'),
+            'active' => request()->is('file-manager'),
+            'icon' => 'M4 4h16v12H4z M4 10h16',
+        ],
+        [
+            'label' => __('Phone Book'),
+            'route' => route('phonebook'),
+            'active' => request()->is('phonebook'),
+            'icon' => 'M6 4h12v16H6z M9 8h6M9 12h3',
+        ],
+    ];
+
+    $reportNav = [
+        [
+            'label' => __('Campaign / Blast'),
+            'route' => route('campaigns'),
+            'active' => request()->is('campaigns'),
+        ],
+        [
+            'label' => __('Messages History'),
+            'route' => route('messages.history'),
+            'active' => request()->is('messages.history'),
+        ],
+    ];
+
+    $deviceNav = [
+        [
+            'label' => __('Plugins'),
+            'route' => route('plugins'),
+            'active' => request()->is('plugins'),
+        ],
+        [
+            'label' => __('Auto Reply'),
+            'route' => route('autoreply'),
+            'active' => request()->is('autoreply'),
+        ],
+        [
+            'label' => __('Create Campaign'),
+            'route' => route('campaign.create'),
+            'active' => url()->current() == route('campaign.create'),
+        ],
+        [
+            'label' => __('Test Message'),
+            'route' => route('messagetest'),
+            'active' => url()->current() == route('messagetest'),
+        ],
+    ];
+
+    $adminNav = [
+        [
+            'label' => __('Setting Server'),
+            'route' => route('admin.settings'),
+            'active' => request()->is('admin.settings'),
+        ],
+        [
+            'label' => __('Update'),
+            'route' => route('update'),
+            'active' => request()->is('update'),
+        ],
+        [
+            'label' => __('Manage User'),
+            'route' => route('admin.manage-users'),
+            'active' => request()->is('admin.manage-users'),
+        ],
+    ];
+@endphp
+
+<aside class="flex h-full flex-col px-5 py-6">
+    <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div
+                class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-neon/60 to-transparent text-lg font-semibold text-brand-neon shadow-glow">
+                MP
             </div>
             <div>
-                <h4 class="logo-text">{{ __('MPWA ') }}v{{ config('app.version') }}</h4>
-            </div>
-            <div class="toggle-icon ms-auto"> <i class="bi bi-list"></i>
+                <p class="text-xs uppercase tracking-[0.4em] text-slate-500">MPWA</p>
+                <p class="text-sm font-semibold text-white">v{{ config('app.version') }}</p>
             </div>
         </div>
-        <!--navigation-->
-        <ul class="metismenu" id="menu">
-            {{-- dashboard --}}
-            <li class="{{ request()->is('home') ? 'active' : '' }}">
-                <a href="{{ route('home') }}">
-                    <div class="parent-icon"><i class="bi bi-house-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Dashboard') }}</div>
-                </a>
+        <button class="rounded-2xl border border-slate-800/80 p-2 text-slate-400 transition hover:text-white lg:hidden"
+            @click="mobileSidebar = false">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M6 18 18 6M6 6l12 12" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+        </button>
+    </div>
 
-            </li>
-            {{-- file manager --}}
-            <li class="{{ request()->is('file-manager') ? 'active' : '' }}">
-                <a href="{{ route('file-manager') }}">
-                    <div class="parent-icon"><i class="bi bi-file-earmark-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('File Manager') }}</div>
-                </a>
-
-            </li>
-            {{-- phone book --}}
-            <li class="{{ request()->is('phonebook') ? 'active' : '' }}">
-                <a href="{{ route('phonebook') }}">
-                    <div class="parent-icon"><i class="bi bi-telephone-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Phone Book') }}</div>
-                </a>
-            </li>
-            {{-- reports --}}
-            <li>
-                <a href="javascript:;" class="has-arrow">
-                    <div class="parent-icon">
-                        {{-- histories icon --}}
-                        <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Reports') }}</div>
-                </a>
-                <ul>
-                    <li class="{{ request()->is('campaigns') ? 'active' : '' }}">
-                        <a href="{{ route('campaigns') }}"><i
-                                class="bi bi-circle"></i>{{ __('Campaign / Blast') }}</a>
+    <nav class="mt-8 flex-1 space-y-8 overflow-y-auto text-sm">
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-600">Navigation</p>
+            <ul class="mt-4 space-y-1">
+                @foreach ($baseNav as $item)
+                    <li>
+                        <a href="{{ $item['route'] }}"
+                            class="{{ $item['active'] ? 'bg-brand-neon/15 border border-brand-neon/40 text-white shadow-glow' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent' }} flex items-center gap-3 rounded-2xl px-4 py-3 transition">
+                            <span
+                                class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900/80 text-slate-300">
+                                <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="{{ $item['icon'] }}" stroke-width="1.4" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                            {{ $item['label'] }}
+                        </a>
                     </li>
-                    <li class="{{ request()->is('messages.history') ? 'active' : '' }}">
-                        <a href="{{ route('messages.history') }}"><i
-                                class="bi bi-circle"></i>{{ __('Messages History') }}</a>
-                    </li>
+                @endforeach
+            </ul>
+        </div>
 
-                </ul>
-            </li>
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-600">{{ __('Reports') }}</p>
+            <div class="mt-3 rounded-2xl border border-slate-800/60 bg-slate-900/50 p-3">
+                @foreach ($reportNav as $item)
+                    <a href="{{ $item['route'] }}"
+                        class="{{ $item['active'] ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white' }} flex items-center justify-between rounded-xl px-4 py-3 text-sm transition">
+                        {{ $item['label'] }}
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                            <path d="m7 4 6 6-6 6" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                @endforeach
+            </div>
+        </div>
 
-            <x-select-device></x-select-device>
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-600">{{ __('Workspace') }}</p>
+            <div class="mt-3 rounded-2xl border border-slate-800/60 bg-slate-900/50 p-4">
+                <p class="text-xs text-slate-400">{{ __('Active Device') }}</p>
+                <x-select-device></x-select-device>
+            </div>
 
-            {{-- these menus only show if exists selected devices --}}
             @if (Session::has('selectedDevice'))
-            <li class="{{ request()->is('plugins') ? 'active' : '' }}">
-                <a href="{{ route('plugins') }}">
-                    <div class="parent-icon"><i class="bi bi-plug-fill	"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Plugins') }}</div>
-                </a>
-            </li>
-            <li class="{{ request()->is('autoreply') ? 'active' : '' }}">
-                <a href="{{ route('autoreply') }}">
-                    <div class="parent-icon"><i class="bi bi-chat-left-dots-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Auto Reply') }}</div>
-                </a>
-            </li>
-
-            {{-- Create campaign --}}
-            <li class=" {{ url()->current() == route('campaign.create') ? 'mm-active' : '' }}">
-                <a class="" href="{{ route('campaign.create') }}">
-                    <div class="parent-icon"><i class="bi bi-plus-circle-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Create Campaign') }}</div>
-                </a>
-            </li>
-            {{-- end create campaign --}}
-            {{-- Message Test --}}
-            <li class=" {{ url()->current() == route('messagetest') ? 'mm-active' : '' }}">
-                <a class="" href="{{ route('messagetest') }}">
-                    <div class="parent-icon"><i class="bi bi-chat-left-dots-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Test Message') }}</div>
-                </a>
-            </li>
-            {{-- Message Test --}}
-            @endif
-
-            {{-- Api Documentation --}}
-
-            <li class=" {{ url()->current() == route('rest-api') ? 'mm-active' : '' }}">
-                <a class="" href="{{ route('rest-api') }}">
-                    <div class="parent-icon"><i class="bi bi-code-square"></i>
-                    </div>
-                    <div class="menu-title">{{ __('API Docs') }}</div>
-                </a>
-            </li>
-            {{-- end api documentation --}}
-
-            {{-- menus for admin --}}
-            @if (Auth::user()->level == 'admin')
-            <li>
-                <a href="javascript:;" class="has-arrow">
-                    <div class="parent-icon">
-                        {{-- admin icon --}}
-                        <i class="bi bi-person-lines-fill"></i>
-                    </div>
-                    <div class="menu-title">{{ __('Admin') }}</div>
-                </a>
-                <ul>
-                    <li class="{{ request()->is('admin.settings') ? 'active' : '' }}">
-                        <a href="{{ route('admin.settings') }}"><i
-                                class="bi bi-circle"></i>{{ __('Setting Server') }}</a>
-                    </li>
-                    <li class="{{ request()->is('update') ? 'active' : '' }}">
-                        <a href="{{ route('update') }}">
-                            <i class="bi bi-circle"></i>
-                            {{ __('Update') }}</a>
-                    </li>
-
-                    <li class="{{ request()->is('admin.manage-users') ? 'active' : '' }}">
-                        <a href="{{ route('admin.manage-users') }}">
-                            <i class="bi bi-circle"></i>
-                            {{ __('Manage User') }}</a>
-                    </li>
-
+                <ul class="mt-4 space-y-1">
+                    @foreach ($deviceNav as $item)
+                        <li>
+                            <a href="{{ $item['route'] }}"
+                                class="{{ $item['active'] ? 'bg-brand-neon/15 border border-brand-neon/40 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent' }} block rounded-2xl px-4 py-3 transition">
+                                {{ $item['label'] }}
+                            </a>
+                        </li>
+                    @endforeach
                 </ul>
-            </li>
             @endif
+        </div>
 
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-600">{{ __('Developers') }}</p>
+            <a href="{{ route('rest-api') }}"
+                class="{{ url()->current() == route('rest-api') ? 'bg-brand-neon/15 border border-brand-neon/40 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent' }} flex items-center justify-between rounded-2xl px-4 py-3 transition">
+                {{ __('API Docs') }}
+                <span class="text-[10px] uppercase tracking-[0.35em] text-slate-500">{{ __('Live') }}</span>
+            </a>
+        </div>
 
-            {{-- <li class="menu-label">UI Elements</li> --}}
-
-
-
-        </ul>
-
-
-
-
-    </aside>
-
-    <!--end sidebar -->
+        @if (Auth::user()->level == 'admin')
+            <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-slate-600">{{ __('Admin Console') }}</p>
+                <div class="mt-3 space-y-1">
+                    @foreach ($adminNav as $item)
+                        <a href="{{ $item['route'] }}"
+                            class="{{ $item['active'] ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} block rounded-2xl px-4 py-3 transition">
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    </nav>
+</aside>
