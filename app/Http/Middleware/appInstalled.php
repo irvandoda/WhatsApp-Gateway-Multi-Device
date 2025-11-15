@@ -17,8 +17,9 @@ class appInstalled
     public function handle(Request $request, Closure $next)
     {
 
-      $allowedRoute = ['setting.install_app','activateLicense','connectDB' ,'settings.install_app',"cache.clear"];
-      if(!in_array($request->route()->getName(),$allowedRoute) && !env('APP_INSTALLED'))
+      $allowedRoute = ['setting.install_app','connectDB' ,'settings.install_app',"cache.clear"];
+      $isInstalled = config('app.installed', false);
+      if(!in_array($request->route()->getName(),$allowedRoute) && !$isInstalled)
         {
           return redirect()->route('setting.install_app');
         }

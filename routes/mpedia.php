@@ -81,4 +81,3 @@ Route::get('/install', [SettingController::class,'install'])->name('setting.inst
 Route::post('/install', [SettingController::class,'install'])->name('settings.install_app');
 
 Route::post('/settings/check_database_connection',[SettingController::class,'test_database_connection']);
-Route::post('/settings/activate_license',[SettingController::class,'activate_license']);

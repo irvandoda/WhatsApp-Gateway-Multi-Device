@@ -24,7 +24,6 @@ class SettingController extends Controller
     public function __construct()
     {
         $this->middleware('admin')->except(
-            'activate_license',
             'install',
             'test_database_connection'
         );
@@ -112,24 +111,6 @@ class SettingController extends Controller
         ]);
     }
 
-    public function activate_license(Request $request)
-    {
-        try {
-            $push = Http::withOptions(['verify' => false])
-                ->asForm()->post(
-                    'https://m-pedia.my.id/license/activate',
-                    [
-                        'email' => $request->email,
-                        'host' => $_SERVER['HTTP_HOST'],
-                        'licensekey' => $request->license
-                    ]
-                );
-            return json_decode($push);
-        } catch (\Throwable $th) {
-            return false;
-        }
-    }
-
     public function test_database_connection(Request $request)
     {
         $data = json_decode(json_encode($request->database));
@@ -155,7 +136,7 @@ class SettingController extends Controller
 
     public function install(Request $request)
     {
-        if (env('APP_INSTALLED') === true) {
+        if (config('app.installed') === true) {
             return redirect('/');
         }
         if ($request->method() === 'POST') {
@@ -214,17 +195,10 @@ class SettingController extends Controller
             $env['DB_PASSWORD'] = $db_params['password'];
             $env['APP_URL'] = $urll;
             $env['APP_INSTALLED'] = 'true';
-            if ($request->input('licensekey') != null) {
-                $env['LICENSE_KEY'] = $request->input('licensekey');
-            }
-            if ($request->input('buyeremail') != null) {
-                $env['BUYER_EMAIL'] = $request->input('buyeremail');
-            }
-
-
             foreach ($env as $k => &$v) {
                 setEnv($k, $v);
             }
+            config(['app.installed' => true]);
 
             /** SETTING .ENV VARS ENDS **/
 

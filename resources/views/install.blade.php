@@ -236,14 +236,6 @@
                             </div>
 
                             <div class="step" :class="{ active: stepIsActive(2) }">
-                                <i class="cog big icon"></i>
-                                <div class="content">
-                                    {{-- <div class="title">{{ __('General') }}</div> --}}
-                                    <div class="description">{{ __('License Validation') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="step" :class="{ active: stepIsActive(3) }">
                                 <i class="database big icon"></i>
                                 <div class="content">
                                     {{-- <div class="title">{{ __('Database') }}</div> --}}
@@ -251,7 +243,7 @@
                                 </div>
                             </div>
 
-                            <div class="step" :class="{ active: stepIsActive(4) }">
+                            <div class="step" :class="{ active: stepIsActive(3) }">
                                 <i class="user big icon"></i>
                                 <div class="content">
                                     {{-- <div class="title">{{ __('Admin access') }}</div> --}}
@@ -315,25 +307,7 @@
                                 </div>
                             </div>
 
-                            <div class="step general" :class="{ active: stepIsActive(2) }">
-                                <div class="field">
-                                    <label>{{ __('License Key') }}</label>
-                                    <input id="licensekey" type="text" name="licensekey">
-                                </div>
-
-                                <div class="field">
-                                    <label>{{ __('Buyer Email') }}</label>
-                                    <input id="buyeremail" type="email" name="buyeremail">
-                                </div>
-
-                                <div class="field">
-                                    <button class="ui basic big fluid button rounded mx-0" type="button"
-                                        @click="validateLicense($event)">Activate License</button>
-                                </div>
-
-
-                            </div>
-                            <div class="step database" :class="{ active: stepIsActive(3) }">
+                            <div class="step database" :class="{ active: stepIsActive(2) }">
                                 <div class="field">
                                     <label>{{ __('Database host') }}</label>
                                     <input type="text" required name="database[host]"
@@ -364,7 +338,7 @@
                                 </div>
                             </div>
 
-                            <div class="step admin" :class="{ active: stepIsActive(4) }">
+                            <div class="step admin" :class="{ active: stepIsActive(3) }">
                                 <div class="field">
                                     <label>{{ __('Admin username') }}</label>
                                     <input type="text" required name="admin[username]"
@@ -391,9 +365,9 @@
                             <button class="ui d-none  large previeus button ml-0 mr-auto" @click="navigateSteps(-1)"
                                 type="button" :class="{ disabled: stepIsActive(1) }">{{ __('Previous') }}</button>
                             <button class="ui large next button ml-auto mr-0" @click="navigateSteps(1)"
-                                type="button" v-if="step <= 3">{{ __('Next') }}</button>
+                                type="button" v-if="step <= 2">{{ __('Next') }}</button>
                             <button class="ui large yellow button ml-auto mr-0" type="button" @click="submitForm"
-                                v-if="step == 4">{{ __('Submit') }}</button>
+                                v-if="step == 3">{{ __('Submit') }}</button>
                         </div>
                     </div>
 
@@ -416,7 +390,7 @@
 
                 navigateSteps: function(number) {
 
-                    if (this.step + number > 4 || this.step + number < 1) {
+                    if (this.step + number > 3 || this.step + number < 1) {
                         return false;
                     }
 
@@ -465,48 +439,6 @@
                             alert(r.status)
                             if (!r.error) {
                                 this.navigateSteps(1);
-                            }
-                        },
-                        error: (err) => {
-                            $(e.target).toggleClass('loading', false);
-                            console.log(err)
-                        }
-                    })
-                },
-                validateLicense: function(e) {
-
-
-
-
-                    const license = $('#licensekey').val()
-                    const email = $('#buyeremail').val()
-                    if (license == '' || email == '') {
-                        alert('Please enter license key and email')
-                        return;
-                    }
-                    $(e.target).toggleClass('loading', true);
-                    $.ajax({
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: '{{ route('activateLicense') }}',
-                        data: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                            license: license,
-                            email: email
-                        },
-                        success: (r) => {
-
-                            $(e.target).toggleClass('loading', false);
-                            if (r == false) {
-                                alert('Error please contact admin')
-                            } else {
-
-                                alert(r.msg);
-                                if (r.status === true) {
-                                    this.navigateSteps(1);
-                                }
                             }
                         },
                         error: (err) => {

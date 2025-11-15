@@ -133,6 +133,29 @@ Gunakan process manager (Supervisor, PM2, systemd) untuk environment produksi.
 
 ---
 
+## ⚡ Otomatisasi (All-in-One)
+
+Untuk environment lokal/VM yang baru dipasang, cukup jalankan:
+
+```bash
+# 1) Install dependency composer/npm, copy .env, migrate, cache config
+bash scripts/setup.sh
+
+# 2) Menyalakan Laravel HTTP + queue worker + WhatsApp worker sekaligus
+APP_PORT=8000 NODE_ENV=production bash scripts/run-services.sh
+```
+
+`scripts/setup.sh` akan:
+- memastikan `.env` tersedia dan APP_KEY tergenerate,
+- menjalankan `composer install`, `npm install`, `php artisan migrate --seed`,
+- membuat symlink storage dan mengoptimalkan cache.
+
+> Secara default seeding hanya dijalankan jika tabel `users` masih kosong. Pakai `SEED_DB=always bash scripts/setup.sh` untuk memaksa seeding, atau `SEED_DB=never` jika ingin melewati.
+
+`scripts/run-services.sh` menjalankan tiga proses utama (Laravel HTTP server, queue worker, dan `server.js`) dalam satu terminal. Gunakan `Ctrl+C` untuk mematikan seluruh proses bersamaan. Variabel `APP_HOST`, `APP_PORT`, `QUEUE_WORKER`, dan `NODE_ENV` bisa diisi sesuai kebutuhan sebelum menjalankan skrip.
+
+---
+
 ## 🌐 REST API Singkat
 
 Base URL mengikuti `APP_URL`. Sertakan header `Authorization: Bearer <API_KEY>` atau `X-Api-Key` sesuai middleware `CheckApiKey`.

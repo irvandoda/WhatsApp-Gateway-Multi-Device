@@ -26,6 +26,10 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 require_once 'custom-route.php';
 
+Route::get('/login', function () {
+    return redirect(LaravelLocalization::getLocalizedURL(null, '/login'));
+});
+
 Route::group(
     ['prefix' => LaravelLocalization::setLocale()],
     function () {
@@ -35,8 +39,7 @@ Route::group(
             \UniSharp\LaravelFilemanager\Lfm::routes();
         });
         Route::get('/', function () {
-            return Redirect::to('/login');
-            // OR: return Redirect::intended('/bands'); // if using authentication
+            return redirect()->route('login');
         });
         Route::middleware('auth')->group(function () {
 
@@ -140,6 +143,5 @@ Route::group(
         Route::post('/install', [SettingController::class, 'install'])->name('settings.install_app');
 
         Route::post('/settings/check_database_connection', [SettingController::class, 'test_database_connection'])->name('connectDB');
-        Route::post('/settings/activate_license', [SettingController::class, 'activate_license'])->name('activateLicense');
     }
 );
