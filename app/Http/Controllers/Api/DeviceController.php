@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Device;
+use App\Services\Impl\WhatsappServiceImpl;
+use App\Utils\CacheKey;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+
+class DeviceController extends Controller
+{
+
+    public function createDevice(Request $request)
+{
+    // Validasi input
+    $validator = validator($request->all(), [
+        'sender' => 'required|min:8|max:1000|unique:devices,body',
+        'urlwebhook' => 'nullable|url',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => $validator->errors()->first(),
+        ], 422);
+    }
+
+    $user = $request->user;
+
+    // Cek langganan
+    if ($user->isExpiredSubscription) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Your subscription has expired, please renew your subscription.',
+        ], 403);
+    }
+
+    // Cek batas device
+    if ($user->devices()->count() >= $user->limit_device) {
+        return response()->json([
+            'status' => false,
+            'message' => 'You have reached the limit of devices!',
+        ], 403);
+    }
+
+    // Simpan device baru
+    $device = $user->devices()->create([
+        'body' => $request->sender,
+        'webhook' => $request->urlwebhook,
+    ]);
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Device added successfully.',
+        'data' => $device,
+    ]);
+}
+
+  
+    public function logoutDevice(Request $request)
+    {
+        $device = Device::whereBody($request->sender)->first();
+        if ($device->status != 'Connected') {
+            return response()->json(['status' => true, 'message' => 'Connection closed. You are logged out.']);
+        }
+
+        $whatsappService = new WhatsappServiceImpl();
+        try {
+            //code...
+            $respon = $whatsappService->logoutDevice($device->body);
+            return $respon;
+        } catch (\Throwable $th) {
+            throw $th;
+            return response()->json(['status' => false, 'message' => 'Whtsapp server unable to reach']);
+        }
+    }
+
+
+    public function deleteDevice(Request $request)
+    {
+        $device = Device::whereBody($request->sender)->first();
+        $isForce =  isset($request->force) && $request->force === true ? true : false;
+        if ($device->status === 'Connected' && !$isForce) return backWithFlash('danger', 'Device is connected. Please disconnect first');
+        try {   
+            if (!empty($device->body)) {
+                $path = base_path('credentials/' . $device->body);
+                if (file_exists($path))  File::deleteDirectory($path);
+            }
+            $device->delete();
+            Cache::forget(CacheKey::DEVICE_BY_BODY . $device->body);
+            Cache::forget(CacheKey::DEVICE_BY_ID . $device->id);
+            Cache::forget(CacheKey::USER_BY_API_KEY . $device->api_key);
+            return response()->json(['status' => true, 'message' => 'Device deleted']);
+        } catch (\Throwable $th) {
+            return backWithFlash('danger', 'Something went wrong');
+        }
+    }
+}
