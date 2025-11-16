@@ -27,6 +27,92 @@
         </form>
 
         <div class="flex items-center gap-3">
+            @php
+                $headerDevices = Auth::user()->devices()->latest()->get();
+            @endphp
+            <div class="relative hidden md:block" x-data="{ openDev: false }">
+                <button @click="openDev = !openDev"
+                    class="inline-flex items-center gap-2 rounded-2xl border border-slate-800/80 bg-slate-900/80 px-4 py-2 text-xs font-medium text-slate-200 transition hover:text-white">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="7" y="4" width="10" height="16" rx="2" stroke-width="1.4" />
+                        <circle cx="12" cy="18" r="0.8" />
+                    </svg>
+                    <span class="uppercase tracking-[0.2em]">
+                        {{ Session::has('selectedDevice') ? Session::get('selectedDevice')['device_body'] : __('Select Device') }}
+                    </span>
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div x-cloak x-show="openDev" @click.outside="openDev = false"
+                    class="absolute right-0 mt-3 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-2 shadow-glow">
+                    @if ($headerDevices->count() === 0)
+                        <div class="px-4 py-3 text-xs text-slate-400">{{ __('No Device added yet') }}</div>
+                    @else
+                        @foreach ($headerDevices as $dev)
+                            <button
+                                class="flex w-full items-center justify-between rounded-xl px-4 py-2 text-left text-sm text-slate-300 hover:bg-white/5"
+                                @click.prevent="
+                                    (async () => {
+                                        try {
+                                            const res = await fetch('{{ route('home.setSessionSelectedDevice') }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').getAttribute('content'),
+                                                    'Accept': 'application/json',
+                                                },
+                                                body: JSON.stringify({ device: '{{ $dev->id }}' }),
+                                            });
+                                            const data = await res.json();
+                                            if (window.toastr) {
+                                                data.error ? toastr.error(data.msg) : toastr.success(data.msg);
+                                            }
+                                        } catch (e) {
+                                            if (window.toastr) toastr.error('{{ __('Something went wrong') }}');
+                                        } finally {
+                                            openDev = false;
+                                            setTimeout(() => location.reload(), 600);
+                                        }
+                                    })()
+                                ">
+                                <span class="font-mono">{{ $dev->body }}</span>
+                                <span class="text-[10px] uppercase tracking-[0.25em] {{ $dev->status === 'Connected' ? 'text-emerald-300' : 'text-rose-300' }}">
+                                    {{ $dev->status }}
+                                </span>
+                            </button>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+            <div class="hidden sm:flex items-center">
+                @if (Session::has('selectedDevice'))
+                    <span class="inline-flex items-center gap-2 rounded-full border border-brand-neon/40 bg-brand-neon/10 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-brand-neon">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="7" y="4" width="10" height="16" rx="2" stroke-width="1.4" />
+                            <circle cx="12" cy="18" r="0.8" />
+                        </svg>
+                        {{ Session::get('selectedDevice')['device_body'] }}
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-2 rounded-full border border-slate-800/60 bg-slate-900/60 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-slate-500"
+                        title="{{ __('Select a device in the sidebar') }}">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="7" y="4" width="10" height="16" rx="2" stroke-width="1.4" />
+                        </svg>
+                        {{ __('No device') }}
+                    </span>
+                @endif
+            </div>
+            <button @click="dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light')"
+                class="inline-flex h-11 items-center gap-2 rounded-2xl border border-slate-800/80 bg-slate-900/80 px-4 text-sm font-medium text-slate-200 transition hover:text-white">
+                <svg x-show="!dark" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m0-11.314L7.05 7.05m8.9 8.9 1.414 1.414" stroke-width="1.5"/></svg>
+                <svg x-show="dark" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="1.5"/></svg>
+                <span x-text="dark ? 'Dark' : 'Light'"></span>
+            </button>
+
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open"
                     class="inline-flex items-center gap-2 rounded-2xl border border-slate-800/80 bg-slate-900/80 px-4 py-3 text-sm font-medium text-slate-200 transition hover:text-white">

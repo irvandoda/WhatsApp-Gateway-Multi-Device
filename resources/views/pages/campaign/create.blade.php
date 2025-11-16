@@ -1,4 +1,4 @@
-<x-layout-dashboard title="Phone book">
+<x-layout-dashboard title="Campaign">
 
     <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
@@ -9,54 +9,47 @@
         </x-alert>
     @endif
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
+        <div class="mb-4 rounded-3xl border border-rose-500/40 bg-rose-500/10 px-6 py-4 text-sm text-rose-100">
+            <ul class="list-disc pl-5 space-y-1">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
-    <!--breadcrumb-->
-    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Campaign</div>
-        <div class="ps-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 p-0">
-                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Create</li>
-                </ol>
-            </nav>
-        </div>
 
+    <div class="mb-6 flex flex-wrap items-center gap-3">
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Campaign</p>
+            <h2 class="text-2xl font-semibold text-white">Create</h2>
+        </div>
     </div>
-    <!--end breadcrumb-->
 
     {{-- wizard --}}
     <div class="row">
         <div class="col-xl-12 mx-auto">
-            <h6 class="mb-0 text-uppercase">Create Your Campaign </h6>
-            <hr />
-            <div class="card">
+            <h6 class="mb-2 text-xs uppercase tracking-[0.35em] text-slate-500">Create Your Campaign</h6>
+            <div class="card rounded-3xl border border-slate-800/60 bg-slate-950/60 shadow-glow">
                 @if (!session()->has('selectedDevice'))
-                    <div class="alert alert-danger"> Please select a device first </div>
+                    <div class="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-amber-100 m-4">
+                        {{ __('Please select a device first') }}
+                    </div>
                 @else
-                    <div class="card-body">
+                    <div class="card-body p-6">
 
                         <!-- SmartWizard html -->
                         <div id="smartwizard" style="height: 100%;">
-                            <ul class="nav">
+                            <ul class="nav text-slate-300">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#step-1">
+                                    <a class="nav-link hover:text-white" href="#step-1">
                                         <strong>Step 1</strong> <br />Create name and preview the sender.</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#step-2">
+                                    <a class="nav-link hover:text-white" href="#step-2">
                                         <strong>Step 2</strong> <br />Set message and destination </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a onclick="return false;" class="nav-link" href="#step-3">
+                                    <a onclick="return false;" class="nav-link hover:text-white" href="#step-3">
                                         <strong>Step 3</strong> <br />Delay and Campaign type</a>
                                 </li>
 
@@ -65,7 +58,7 @@
                                 <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1">
                                     <div class="form-group">
                                         <label class="form-label" for="campaignName">Sender Number / Device</label>
-                                        <input type="text" class="form-control" id="campaignName" name="sender"
+                                        <input type="text" class="form-control w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30" id="campaignName" name="sender"
                                             placeholder="Enter campaign name"
                                             value="{{ session('selectedDevice')['device_body'] }}" disabled>
                                         <input type="hidden" name="device_id" id="device_id"
@@ -74,7 +67,7 @@
                                     </div>
                                     <div class="form-group mt-4">
                                         <label class="form-label" for="campaign_name">Campaign Name</label>
-                                        <input type="text" class="form-control" id="campaign_name"
+                                        <input type="text" class="form-control w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30" id="campaign_name"
                                             name="campaign_name" placeholder="Enter campaign name">
                                     </div>
                                 </div>
@@ -84,12 +77,12 @@
                                     <div class="mb-3 form-group">
                                         <label class="form-label">Select PhoneBook</label>
                                         <select id="phonebook_id" name="phonebook_id"
-                                            class="single-select phonebook-option">
+                                            class="single-select phonebook-option w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30">
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="type" class="form-label">Type Message</label>
-                                        <select name="type" id="type" class="js-states form-control"
+                                        <select name="type" id="type" class="js-states form-control w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30"
                                             tabindex="-1" required>
                                             <option value="" selected disabled>Select One</option>
                                             <option value="text">Text Message</option>
@@ -111,14 +104,14 @@
                                     style="height : 100%;">
                                     <div class="form-group mt-2">
                                         <label for="" class="form-label">Delay Per Message (Second)</label>
-                                        <input type="number" name="delay" id="delay" class="form-control"
+                                        <input type="number" name="delay" id="delay" class="form-control w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30"
                                             placeholder="Delay Per Message (Second)" value="10" min="1"
                                             max="60">
 
                                     </div>
                                     <div class="form-group">
                                         <label for="tipe" class="form-label">Type</label>
-                                        <select name="tipe" id="tipe" class="js-states form-control">
+                                        <select name="tipe" id="tipe" class="js-states form-control w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30">
                                             <option value="immediately">Immediately</option>
                                             <option value="schedule">Schedule</option>
 
@@ -127,7 +120,7 @@
                                     <div class="form-group d-none" id="datetime">
                                         <label for="datetime" class="form-label">Date Time</label>
                                         <input type="datetime-local" id="datetime2" name="datetime"
-                                            class="form-control">
+                                            class="form-control w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30">
                                     </div>
                                 </div>
 
@@ -138,9 +131,9 @@
 
 
                         <div class="d-flex justify-content-center gap-2 mt-4">
-                            <button class="btn btn-info text-white" id="prev-btn" type="button">Previous</button>
-                            <button class="btn btn-info text-white" id="next-btn" type="button">Next</button>
-                            <button class="btn btn-info text-white d-none buttonsubmit" id="finish-btn"
+                            <button class="btn btn-info text-white rounded-2xl border border-slate-800/80 bg-slate-900/70 px-4 py-2 text-sm hover:text-white" id="prev-btn" type="button">Previous</button>
+                            <button class="btn btn-info text-white rounded-2xl border border-brand-neon/40 bg-brand-neon/10 px-4 py-2 text-sm text-brand-neon hover:bg-brand-neon/20" id="next-btn" type="button">Next</button>
+                            <button class="btn btn-info text-white d-none buttonsubmit rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200 hover:bg-emerald-500/20" id="finish-btn"
                                 type="button">Create Campaign</button>
                         </div>
 

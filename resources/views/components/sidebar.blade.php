@@ -58,11 +58,11 @@
                     Admin Menu
                 </li>
 
-                <li class="{{request()->is('settings') ? 'active-page' : ''}}">
-                    <a href="{{route('settings')}}"><i class="material-icons-two-tone">settings</i>Setting Server</a>
+                <li class="{{request()->is('admin/settings') ? 'active-page' : ''}}">
+                    <a href="{{route('admin.settings')}}"><i class="material-icons-two-tone">settings</i>Setting Server</a>
                 </li>
-                <li class="{{request()->is('admin/manage-user') ? 'active-page' : ''}}">
-                    <a href="{{route('admin.manageUser')}}"><i class="material-icons-two-tone">people</i>User Manager</a>
+                <li class="{{request()->is('admin/manage-users') ? 'active-page' : ''}}">
+                    <a href="{{route('admin.manage-users')}}"><i class="material-icons-two-tone">people</i>User Manager</a>
                 </li>
                 @endif
                

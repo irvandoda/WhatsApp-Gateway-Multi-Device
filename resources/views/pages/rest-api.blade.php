@@ -1,399 +1,260 @@
 <x-layout-dashboard title="Rest Api">
-    <div class="app-content">
-        <div class="content-wrapper">
-            <div class="container">
-                <h2 class="my-5">Rest API</h2>
-               
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Method</th>
-                                        <th scope="col">POST & GET ( All support )</th>
-                                    </tr>
-                                    <tr>
-                                        <th scope="col">Type</th>
-                                        <th scope="col">JSON</th>
-                                    </tr>
-                                    <tr>
-                                        <th scope="col">RESPONSE</th>
-                                        <th scope="col">{  status : boolean , msg : 'text'  }  (JSON)</th>
-                                    </tr>
-                                </thead>
-    
-                            </table>
-                        </div>
+    <div class="space-y-8">
+        <div class="rounded-3xl border border-slate-800/60 bg-slate-900/60 p-5">
+            <h2 class="text-xl font-semibold text-white">Rest API</h2>
+            <div class="mt-4 rounded-2xl border border-slate-800/70 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-800/80 text-sm">
+                    <thead class="bg-slate-900/60 text-xs uppercase tracking-[0.25em] text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Method</th>
+                            <th class="px-4 py-3 text-left">POST & GET ( All support )</th>
+                        </tr>
+                        <tr>
+                            <th class="px-4 py-3 text-left">Type</th>
+                            <th class="px-4 py-3 text-left">JSON</th>
+                        </tr>
+                        <tr>
+                            <th class="px-4 py-3 text-left">RESPONSE</th>
+                            <th class="px-4 py-3 text-left">{ status : boolean , msg : 'text' } (JSON)</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-800/60 bg-slate-900/60 p-5">
+            <p class="text-slate-300">Rest Api</p>
+            <div class="mt-4">
+                <ul class="flex flex-wrap gap-2 text-xs">
+                    <li><a class="rounded-xl border border-slate-800/60 px-3 py-2 text-slate-300 hover:text-white" data-bs-toggle="pill" data-bs-target="#textMessage">Text Message</a></li>
+                    <li><a class="rounded-xl border border-slate-800/60 px-3 py-2 text-slate-300 hover:text-white" data-bs-toggle="pill" data-bs-target="#imageMessage">Media Message</a></li>
+                    <li><a class="rounded-xl border border-slate-800/60 px-3 py-2 text-slate-300 hover:text-white" data-bs-toggle="pill" data-bs-target="#buttonMessage">Button Message</a></li>
+                    <li><a class="rounded-xl border border-slate-800/60 px-3 py-2 text-slate-300 hover:text-white" data-bs-toggle="pill" data-bs-target="#templateMessage">Template Message</a></li>
+                    <li><a class="rounded-xl border border-slate-800/60 px-3 py-2 text-slate-300 hover:text-white" data-bs-toggle="pill" data-bs-target="#listMessage">List Message</a></li>
+                    <li><a class="rounded-xl border border-slate-800/60 px-3 py-2 text-slate-300 hover:text-white" data-bs-toggle="pill" data-bs-target="#generateQr">Generate Qr</a></li>
+                    <li><a class="rounded-xl border border-slate-800/60 bg-brand-neon/15 px-3 py-2 text-brand-neon" data-bs-toggle="pill" data-bs-target="#webhook">Webhook</a></li>
+                </ul>
+
+                <div class="tab-content mt-4">
+                    <div class="tab-pane fade show" id="textMessage">
+<pre class="hljs" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php
+
+    $data = [
+        'api_key' =&gt; '{{Auth::user()->api_key}}',
+        'sender' =&gt; 'Sender',
+        'number' =&gt; 'receiver',
+        'message' =&gt; 'Your message'
+    ];
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL =&gt; {{url('/')}}/send-message,
+      CURLOPT_RETURNTRANSFER =&gt; true,
+      CURLOPT_ENCODING =&gt; '',
+      CURLOPT_MAXREDIRS =&gt; 10,
+      CURLOPT_TIMEOUT =&gt; 0,
+      CURLOPT_FOLLOWLOCATION =&gt; true,
+      CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+      CURLOPT_POSTFIELDS =&gt; json_encode($data),
+      CURLOPT_HTTPHEADER =&gt; array('Content-Type: application/json'),
+    ));
+    $response = curl_exec($curl);
+    curl_close($curl);
+    echo $response;
+?&gt;</pre>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <p class="card-description">Rest Api </p>
-                                <div class="example-container">
-                                    <div class="example-content">
-                                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                                            <li class="nav-item" role="presentation">
-<button class="nav-link " id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#textMessage" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Text Message</button>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#imageMessage" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">
-    Media Message
-</button>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#buttonMessage" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Button Message </button>
-                                            </li>
-                                          
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#templateMessage" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Template Message </button>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#listMessage" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">List Message </button>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#generateQr" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Generate Qr</button>
-                                            </li>
-                                           
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link active" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#webhook" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Webhook</button>
-                                            </li>
-                                        </ul>
-                                        <div class="tab-content" id="pills-tabContent">
-                                            <div class="tab-pane fade  show" id="textMessage" role=" tabpanel" aria-labelledby="pills-home-tab">
-                                               
-                                                <pre class="hljs" style="display: block; overflow-x: auto; padding: 0.5em; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220);"><span class="xml"><span class="php"><span class="hljs-meta" style="color: rgb(127, 159, 127);">&lt;?php</span>
 
-                                                    $data = [
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'api_key'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'{{Auth::user()->api_key}}'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'sender'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Sender'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'number'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'receiver'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'message'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your message'</span>
-                                                    ];
-                                                    $curl = curl_init();
-                                                    
-                                                    curl_setopt_array($curl, <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-                                                      CURLOPT_URL =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">{{url('/')}}/send-message</span>,
-                                                      CURLOPT_RETURNTRANSFER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-                                                      CURLOPT_ENCODING =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">''</span>,
-                                                      CURLOPT_MAXREDIRS =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">10</span>,
-                                                      CURLOPT_TIMEOUT =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">0</span>,
-                                                      CURLOPT_FOLLOWLOCATION =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-                                                      CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
-                                                      CURLOPT_CUSTOMREQUEST =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'POST'</span>,
-                                                      CURLOPT_POSTFIELDS =&gt; json_encode($data),
-                                                      CURLOPT_HTTPHEADER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'Content-Type: application/json'</span>
-                                                      ),
-                                                    ));
-                                                    
-                                                    $response = curl_exec($curl);
-                                                    
-                                                    curl_close($curl);
-                                                    <span class="hljs-keyword" style="color: rgb(227, 206, 171);">echo</span> $response;
-                                                    
-                                                    <span class="hljs-meta" style="color: rgb(127, 159, 127);">?&gt;</span></span></span></pre>
-    
-                                            </div>
-                                            <div class="tab-pane fade" id="imageMessage" role="tabpanel" aria-labelledby="pills-profile-tab">
-                                                <pre class="hljs" style="display: block; overflow-x: auto; padding: 0.5em; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220);"><span class="xml"><span class="php"><span class="hljs-meta" style="color: rgb(127, 159, 127);">&lt;?php</span>
-
-                                                    $data = [
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'api_key'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'{{Auth::user()->api_key}}'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'sender'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Sender'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'number'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'receiver'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'message'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your caption'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'url'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Url Media'</span>
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'type'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'audio / video / image / pdf / xls /xlsx /doc /docx /zip'</span><span style="color: #666666; font-style: italic;">//Choose One</span>
-                                                    ];
-                                                    $curl = curl_init();
-                                                    
-                                                    curl_setopt_array($curl, <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-                                                      CURLOPT_URL =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">{{url('/')}}/send-media</span>,
-                                                      CURLOPT_RETURNTRANSFER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-                                                      CURLOPT_ENCODING =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">''</span>,
-                                                      CURLOPT_MAXREDIRS =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">10</span>,
-                                                      CURLOPT_TIMEOUT =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">0</span>,
-                                                      CURLOPT_FOLLOWLOCATION =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-                                                      CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
-                                                      CURLOPT_CUSTOMREQUEST =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'POST'</span>,
-                                                      CURLOPT_POSTFIELDS =&gt; json_encode($data),
-                                                      CURLOPT_HTTPHEADER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'Content-Type: application/json'</span>
-                                                      ),
-                                                    ));
-                                                    
-                                                    $response = curl_exec($curl);
-                                                    
-                                                    curl_close($curl);
-                                                    <span class="hljs-keyword" style="color: rgb(227, 206, 171);">echo</span> $response;
-                                                    
-                                                    <span class="hljs-meta" style="color: rgb(127, 159, 127);">?&gt;</span></span></span></pre>
-    
-                                           
-                                               
-    
-                                            </div>
-                                            <div class="tab-pane fade" id="buttonMessage" role="tabpanel" aria-labelledby="pills-contact-tab">
-                                                <pre class="hljs" style="display: block; overflow-x: auto; padding: 0.5em; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220);"><span class="xml"><span class="php"><span class="hljs-meta" style="color: rgb(127, 159, 127);">&lt;?php</span>
-
-                                                    $data = [
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'api_key'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'{{Auth::user()->api_key}}'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'sender'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Sender'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'number'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'receiver'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'message'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your message'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'footer'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your footer message'</span>,
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'image'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'URL image '</span>, <span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'button1'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Button 1 '</span>, <span style="color: #666666; font-style: italic;">//REQUIRED ( Button minimal 1 )</span>
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'button2'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Button 2'</span>, <span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'button3'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Button 3'</span>,<span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-                                                    ];
-                                                    $curl = curl_init();
-                                                    
-                                                    curl_setopt_array($curl, <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-                                                      CURLOPT_URL =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">{{url('/')}}/send-button</span>,
-                                                      CURLOPT_RETURNTRANSFER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-                                                      CURLOPT_ENCODING =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">''</span>,
-                                                      CURLOPT_MAXREDIRS =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">10</span>,
-                                                      CURLOPT_TIMEOUT =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">0</span>,
-                                                      CURLOPT_FOLLOWLOCATION =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-                                                      CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
-                                                      CURLOPT_CUSTOMREQUEST =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'POST'</span>,
-                                                      CURLOPT_POSTFIELDS =&gt; json_encode($data),
-                                                      CURLOPT_HTTPHEADER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-                                                        <span class="hljs-string" style="color: rgb(204, 147, 147);">'Content-Type: application/json'</span>
-                                                      ),
-                                                    ));
-                                                    
-                                                    $response = curl_exec($curl);
-                                                    
-                                                    curl_close($curl);
-                                                    <span class="hljs-keyword" style="color: rgb(227, 206, 171);">echo</span> $response;
-                                                    
-                                                    <span class="hljs-meta" style="color: rgb(127, 159, 127);">?&gt;</span></span></span></pre>
-    
-                                           
-                                                
-                                            </div>
-                                           
-                                            <div class="tab-pane fade" id="templateMessage" role="tabpanel" aria-labelledby="pills-contact-tab">
-<pre class="hljs" style="display: block; overflow-x: auto; padding: 0.5em; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220);"><span class="xml"><span class="php"><span class="hljs-meta" style="color: rgb(127, 159, 127);">&lt;?php</span>
-
+                    <div class="tab-pane fade" id="imageMessage">
+<pre class="hljs" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php
     $data = [
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'api_key'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'{{Auth::user()->api_key}}'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'sender'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Sender'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'number'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'receiver'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'message'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your message'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'footer'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your footer message'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'image'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'URL image '</span>, <span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'template1'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'template 1 '</span>, <span style="color: #666666; font-style: italic;">//REQUIRED ( template minimal 1 )</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'template2'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'template 2'</span>, <span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'template3'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'template 3'</span>,<span style="color: #666666; font-style: italic;">//OPTIONAL</span>
+        'api_key' =&gt; '{{Auth::user()->api_key}}',
+        'sender' =&gt; 'Sender',
+        'number' =&gt; 'receiver',
+        'message' =&gt; 'Your caption',
+        'url' =&gt; 'Url Media'
+        'type' =&gt; 'audio / video / image / pdf / xls /xlsx /doc /docx /zip' //Choose One
     ];
     $curl = curl_init();
-    
-    curl_setopt_array($curl, <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-      CURLOPT_URL =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">{{url('/')}}/send-template</span>,
-      CURLOPT_RETURNTRANSFER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-      CURLOPT_ENCODING =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">''</span>,
-      CURLOPT_MAXREDIRS =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">10</span>,
-      CURLOPT_TIMEOUT =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">0</span>,
-      CURLOPT_FOLLOWLOCATION =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
+    curl_setopt_array($curl, array(
+      CURLOPT_URL =&gt; {{url('/')}}/send-media,
+      CURLOPT_RETURNTRANSFER =&gt; true,
+      CURLOPT_ENCODING =&gt; '',
+      CURLOPT_MAXREDIRS =&gt; 10,
+      CURLOPT_TIMEOUT =&gt; 0,
+      CURLOPT_FOLLOWLOCATION =&gt; true,
       CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'POST'</span>,
+      CURLOPT_CUSTOMREQUEST =&gt; 'POST',
       CURLOPT_POSTFIELDS =&gt; json_encode($data),
-      CURLOPT_HTTPHEADER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'Content-Type: application/json'</span>
-      ),
+      CURLOPT_HTTPHEADER =&gt; array('Content-Type: application/json'),
     ));
-    
     $response = curl_exec($curl);
-    
     curl_close($curl);
-    <span class="hljs-keyword" style="color: rgb(227, 206, 171);">echo</span> $response;
-    
-    <span class="hljs-meta" style="color: rgb(127, 159, 127);">?&gt;</span></span></span></pre>
-    
-                                           
-  
-                                            </div>
+    echo $response;
+?&gt;</pre>
+                    </div>
 
-                                        {{-- List Message --}}
-                                            <div class="tab-pane fade" id="listMessage" role="tabpanel" aria-labelledby="pills-contact-tab">
-<pre class="hljs" style="display: block; overflow-x: auto; padding: 0.5em; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220);"><span class="xml"><span class="php"><span class="hljs-meta" style="color: rgb(127, 159, 127);">&lt;?php</span>
-
+                    <div class="tab-pane fade" id="buttonMessage">
+<pre class="hljs" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php
     $data = [
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'api_key'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'{{Auth::user()->api_key}}'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'sender'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Sender'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'number'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'receiver'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'message'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your message'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'footer'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Your footer message'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'name'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Name List '</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'title'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Title List '</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'list1'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'list 1 '</span>, <span style="color: #666666; font-style: italic;">//REQUIRED ( list minimal 1 )</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'list2'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'list 2'</span>, <span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'list3'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'list 3'</span>,<span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'list4'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'list 4'</span>,<span style="color: #666666; font-style: italic;">//OPTIONAL</span>
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'list5'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'list 5'</span>,<span style="color: #666666; font-style: italic;">//OPTIONAL</span>
+        'api_key' =&gt; '{{Auth::user()->api_key}}',
+        'sender' =&gt; 'Sender',
+        'number' =&gt; 'receiver',
+        'message' =&gt; 'Your message',
+        'footer' =&gt; 'Your footer message',
+        'image' =&gt; 'URL image ', //OPTIONAL
+        'button1' =&gt; 'Button 1 ', //REQUIRED ( Button minimal 1 )
+        'button2' =&gt; 'Button 2', //OPTIONAL
+        'button3' =&gt; 'Button 3', //OPTIONAL
     ];
     $curl = curl_init();
-    
-    curl_setopt_array($curl, <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-      CURLOPT_URL =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">{{url('/')}}/send-list</span>,
-      CURLOPT_RETURNTRANSFER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-      CURLOPT_ENCODING =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">''</span>,
-      CURLOPT_MAXREDIRS =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">10</span>,
-      CURLOPT_TIMEOUT =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">0</span>,
-      CURLOPT_FOLLOWLOCATION =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
+    curl_setopt_array($curl, array(
+      CURLOPT_URL =&gt; {{url('/')}}/send-button,
+      CURLOPT_RETURNTRANSFER =&gt; true,
+      CURLOPT_ENCODING =&gt; '',
+      CURLOPT_MAXREDIRS =&gt; 10,
+      CURLOPT_TIMEOUT =&gt; 0,
+      CURLOPT_FOLLOWLOCATION =&gt; true,
       CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'POST'</span>,
+      CURLOPT_CUSTOMREQUEST =&gt; 'POST',
       CURLOPT_POSTFIELDS =&gt; json_encode($data),
-      CURLOPT_HTTPHEADER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'Content-Type: application/json'</span>
-      ),
+      CURLOPT_HTTPHEADER =&gt; array('Content-Type: application/json'),
     ));
-    
     $response = curl_exec($curl);
-    
     curl_close($curl);
-    <span class="hljs-keyword" style="color: rgb(227, 206, 171);">echo</span> $response;
-    
-    <span class="hljs-meta" style="color: rgb(127, 159, 127);">?&gt;</span></span></span></pre>
-    
-                                           
-  
-                                            </div>
-                                            {{-- Generate qr --}}
-                                             {{-- List Message --}}
-                                            <div class="tab-pane fade" id="generateQr" role="tabpanel" aria-labelledby="pills-contact-tab">
-<pre class="hljs" style="display: block; overflow-x: auto; padding: 0.5em; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220);"><span class="xml"><span class="php"><span class="hljs-meta" style="color: rgb(127, 159, 127);">&lt;?php</span>
+    echo $response;
+?&gt;</pre>
+                    </div>
 
-    <span style="color: #666666; font-style: italic;">//Type respon (json)</span>
-    <span style="color: #666666; font-style: italic;">// { "status" : "processing", "message" : "processing"  }</span>
-    <span style="color: #666666; font-style: italic;">// { "status" : true, "message" : "Already Connected"  }</span>
-    <span style="color: #666666; font-style: italic;">// { "status" : false, "qrcode" : "qr url",  "message" : "Please Scan qrcode"  }</span>
+                    <div class="tab-pane fade" id="templateMessage">
+<pre class="hljs" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php
+    $data = [
+        'api_key' =&gt; '{{Auth::user()->api_key}}',
+        'sender' =&gt; 'Sender',
+        'number' =&gt; 'receiver',
+        'message' =&gt; 'Your message',
+        'footer' =&gt; 'Your footer message',
+        'image' =&gt; 'URL image ', //OPTIONAL
+        'template1' =&gt; 'template 1 ', //REQUIRED ( template minimal 1 )
+        'template2' =&gt; 'template 2', //OPTIONAL
+        'template3' =&gt; 'template 3', //OPTIONAL
+    ];
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL =&gt; {{url('/')}}/send-template,
+      CURLOPT_RETURNTRANSFER =&gt; true,
+      CURLOPT_ENCODING =&gt; '',
+      CURLOPT_MAXREDIRS =&gt; 10,
+      CURLOPT_TIMEOUT =&gt; 0,
+      CURLOPT_FOLLOWLOCATION =&gt; true,
+      CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+      CURLOPT_POSTFIELDS =&gt; json_encode($data),
+      CURLOPT_HTTPHEADER =&gt; array('Content-Type: application/json'),
+    ));
+    $response = curl_exec($curl);
+    curl_close($curl);
+    echo $response;
+?&gt;</pre>
+                    </div>
+
+                    <div class="tab-pane fade" id="listMessage">
+<pre class="hljs" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php
+    $data = [
+        'api_key' =&gt; '{{Auth::user()->api_key}}',
+        'sender' =&gt; 'Sender',
+        'number' =&gt; 'receiver',
+        'message' =&gt; 'Your message',
+        'footer' =&gt; 'Your footer message',
+        'name' =&gt; 'Name List ',
+        'title' =&gt; 'Title List ',
+        'list1' =&gt; 'list 1 ', //REQUIRED ( list minimal 1 )
+        'list2' =&gt; 'list 2', //OPTIONAL
+        'list3' =&gt; 'list 3', //OPTIONAL
+        'list4' =&gt; 'list 4', //OPTIONAL
+        'list5' =&gt; 'list 5', //OPTIONAL
+    ];
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL =&gt; {{url('/')}}/send-list,
+      CURLOPT_RETURNTRANSFER =&gt; true,
+      CURLOPT_ENCODING =&gt; '',
+      CURLOPT_MAXREDIRS =&gt; 10,
+      CURLOPT_TIMEOUT =&gt; 0,
+      CURLOPT_FOLLOWLOCATION =&gt; true,
+      CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+      CURLOPT_POSTFIELDS =&gt; json_encode($data),
+      CURLOPT_HTTPHEADER =&gt; array('Content-Type: application/json'),
+    ));
+    $response = curl_exec($curl);
+    curl_close($curl);
+    echo $response;
+?&gt;</pre>
+                    </div>
+
+                    <div class="tab-pane fade" id="generateQr">
+<pre class="hljs" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php
+    //Type respon (json)
+    // { "status" : "processing", "message" : "processing" }
+    // { "status" : true, "message" : "Already Connected" }
+    // { "status" : false, "qrcode" : "qr url",  "message" : "Please Scan qrcode" }
 
     $data = [
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'api_key'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'{{Auth::user()->api_key}}'</span>,
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'number'</span> =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'Number'</span>,<span style="color: #666666; font-style: italic;">//the number you want to connect, will be added to the database if it is not registered.</span>
-       
-        ];
+        'api_key' =&gt; '{{Auth::user()->api_key}}',
+        'number' =&gt; 'Number', //the number to connect
+    ];
     $curl = curl_init();
-    
-    curl_setopt_array($curl, <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-      CURLOPT_URL =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">{{url('/')}}/generate-qr</span>,
-      CURLOPT_RETURNTRANSFER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
-      CURLOPT_ENCODING =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">''</span>,
-      CURLOPT_MAXREDIRS =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">10</span>,
-      CURLOPT_TIMEOUT =&gt; <span class="hljs-number" style="color: rgb(140, 208, 211);">0</span>,
-      CURLOPT_FOLLOWLOCATION =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">true</span>,
+    curl_setopt_array($curl, array(
+      CURLOPT_URL =&gt; {{url('/')}}/generate-qr,
+      CURLOPT_RETURNTRANSFER =&gt; true,
+      CURLOPT_ENCODING =&gt; '',
+      CURLOPT_MAXREDIRS =&gt; 10,
+      CURLOPT_TIMEOUT =&gt; 0,
+      CURLOPT_FOLLOWLOCATION =&gt; true,
       CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST =&gt; <span class="hljs-string" style="color: rgb(204, 147, 147);">'POST'</span>,
+      CURLOPT_CUSTOMREQUEST =&gt; 'POST',
       CURLOPT_POSTFIELDS =&gt; json_encode($data),
-      CURLOPT_HTTPHEADER =&gt; <span class="hljs-keyword" style="color: rgb(227, 206, 171);">array</span>(
-        <span class="hljs-string" style="color: rgb(204, 147, 147);">'Content-Type: application/json'</span>
-      ),
+      CURLOPT_HTTPHEADER =&gt; array('Content-Type: application/json'),
     ));
-    
     $response = curl_exec($curl);
-    
     curl_close($curl);
-    <span class="hljs-keyword" style="color: rgb(227, 206, 171);">echo</span> $response;
-    
-    <span class="hljs-meta" style="color: rgb(127, 159, 127);">?&gt;</span></span></span></pre>
-    
-                                           
-  
-                                            </div>
-                                            {{-- end generate qr --}}
-                                            <pre class="tab-pane fade active show" id="webhook" role="tabpanel" aria-labelledby="pills-contact-tab">
-                                              <pre class="php" style="font-family:monospace;"><span style="color: #000000; font-weight: bold;">&lt;?php</span> 
-&nbsp;
-&nbsp;
- <span style="color: #990000;">header</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">'content-type: application/json'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #000088;">$data</span> <span style="color: #339933;">=</span> <span style="color: #990000;">json_decode</span><span style="color: #009900;">&#40;</span><span style="color: #990000;">file_get_contents</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">'php://input'</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #009900; font-weight: bold;">true</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #990000;">file_put_contents</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">'whatsapp.txt'</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'['</span> <span style="color: #339933;">.</span> <span style="color: #990000;">date</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">'Y-m-d H:i:s'</span><span style="color: #009900;">&#41;</span> <span style="color: #339933;">.</span> <span style="color: #0000ff;">&quot;]<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span> <span style="color: #339933;">.</span> <span style="color: #990000;">json_encode</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$data</span><span style="color: #009900;">&#41;</span> <span style="color: #339933;">.</span> <span style="color: #0000ff;">&quot;<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> FILE_APPEND<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>                                               
- <span style="color: #000088;">$message</span> <span style="color: #339933;">=</span> <span style="color: #990000;">strtolower</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$data</span><span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'message'</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #000088;">$from</span> <span style="color: #339933;">=</span> <span style="color: #990000;">strtolower</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$data</span><span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'from'</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #000088;">$respon</span> <span style="color: #339933;">=</span> <span style="color: #009900; font-weight: bold;">false</span><span style="color: #339933;">;</span>
-&nbsp;
- <span style="color: #666666; font-style: italic;">// auto respond text   </span>
- <span style="color: #000000; font-weight: bold;">function</span> sayHello<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>    
- <span style="color: #b1b100;">return</span> <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">&quot;text&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'Halloooo!'</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
-             <span style="color: #009900;">&#125;</span>
-&nbsp;
- <span style="color: #666666; font-style: italic;">// auto respond gambaar            </span>
-<span style="color: #000000; font-weight: bold;">function</span> gambar<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
- <span style="color: #b1b100;">return</span> <span style="color: #009900;">&#91;</span>
-     <span style="color: #0000ff;">'image'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'url'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'https://seeklogo.com/images/W/whatsapp-logo-A5A7F17DC1-seeklogo.com.png'</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span>
-     <span style="color: #0000ff;">'caption'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'Logo whatsapp!'</span>
- <span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>   
-<span style="color: #009900;">&#125;</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//auto respond button</span>
- <span style="color: #000000; font-weight: bold;">function</span> button<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
-     <span style="color: #000088;">$buttons</span> <span style="color: #339933;">=</span> <span style="color: #009900;">&#91;</span>
-         <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'buttonId'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'id1'</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'buttonText'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'displayText'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'BUTTON 1'</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'type'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;">// button 1 // </span>
-         <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'buttonId'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'id2'</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'buttonText'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'displayText'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'BUTTON 2'</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'type'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;">// button 2</span>
-         <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'buttonId'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'id3'</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'buttonText'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">'displayText'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'BUTTON 3'</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">'type'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;">// button 3</span>
-     <span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
-     <span style="color: #000088;">$buttonMessage</span> <span style="color: #339933;">=</span> <span style="color: #009900;">&#91;</span>
-         <span style="color: #0000ff;">'text'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'HOLA, INI ADALAH PESAN BUTTON'</span><span style="color: #339933;">,</span> 
-         <span style="color: #0000ff;">'footer'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">'ini pesan footer'</span><span style="color: #339933;">,</span> 
-         <span style="color: #0000ff;">'buttons'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #000088;">$buttons</span><span style="color: #339933;">,</span>
-         <span style="color: #0000ff;">'headerType'</span> <span style="color: #339933;">=&gt;</span> <span style="color: #cc66cc;">1</span> 
-     <span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
-     <span style="color: #b1b100;">return</span> <span style="color: #000088;">$buttonMessage</span><span style="color: #339933;">;</span>
- <span style="color: #009900;">&#125;</span>
-&nbsp;
- <span style="color: #666666; font-style: italic;">// auto respon lists</span>
-<span style="color: #000000; font-weight: bold;">function</span> lists<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
- <span style="color: #000088;">$sections</span> <span style="color: #339933;">=</span> <span style="color: #009900;">&#91;</span>
-        <span style="color: #009900;">&#91;</span> 
-        	<span style="color: #0000ff;">&quot;title&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;This is List menu&quot;</span><span style="color: #339933;">,</span>
-        	<span style="color: #0000ff;">&quot;rows&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #009900;">&#91;</span>
-	        <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">&quot;title&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;List 1&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;description&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;this is list one&quot;</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span>
-	        <span style="color: #009900;">&#91;</span><span style="color: #0000ff;">&quot;title&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;List 2&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;description&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;this is list two&quot;</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span>
-    	<span style="color: #009900;">&#93;</span> 
-    <span style="color: #009900;">&#93;</span>
-<span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
-&nbsp;
- <span style="color: #000088;">$listMessage</span> <span style="color: #339933;">=</span> <span style="color: #009900;">&#91;</span>
-  <span style="color: #0000ff;">&quot;text&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;This is a list&quot;</span><span style="color: #339933;">,</span>
-  <span style="color: #0000ff;">&quot;title&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;Title Chat&quot;</span><span style="color: #339933;">,</span>
-  <span style="color: #0000ff;">&quot;buttonText&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #0000ff;">&quot;Select what will you do?&quot;</span><span style="color: #339933;">,</span>
-  <span style="color: #0000ff;">&quot;sections&quot;</span> <span style="color: #339933;">=&gt;</span> <span style="color: #000088;">$sections</span>
- <span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
-&nbsp;
- <span style="color: #b1b100;">return</span> <span style="color: #000088;">$listMessage</span><span style="color: #339933;">;</span>  
- <span style="color: #009900;">&#125;</span>
-&nbsp;
-&nbsp;
- <span style="color: #b1b100;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$message</span> <span style="color: #339933;">===</span> <span style="color: #0000ff;">'hai'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
-     <span style="color: #000088;">$respon</span> <span style="color: #339933;">=</span> sayHello<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #009900;">&#125;</span> <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$message</span> <span style="color: #339933;">===</span> <span style="color: #0000ff;">'gambar'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
-     <span style="color: #000088;">$respon</span> <span style="color: #339933;">=</span> gambar<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #009900;">&#125;</span> <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$message</span> <span style="color: #339933;">===</span> <span style="color: #0000ff;">'tes button'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
-     <span style="color: #000088;">$respon</span> <span style="color: #339933;">=</span> button<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #009900;">&#125;</span> <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$message</span> <span style="color: #339933;">===</span> <span style="color: #0000ff;">'lists msg'</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
-     <span style="color: #000088;">$respon</span> <span style="color: #339933;">=</span> lists<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
- <span style="color: #009900;">&#125;</span>
- <span style="color: #b1b100;">echo</span> <span style="color: #990000;">json_encode</span><span style="color: #009900;">&#40;</span><span style="color: #000088;">$respon</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
-<span style="color: #000000; font-weight: bold;">?&gt;</span></pre>   
-                                            </pre>
-                                        </div>
-    
-                                      
-    
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    echo $response;
+?&gt;</pre>
+                    </div>
+
+                    <div class="tab-pane fade show active" id="webhook">
+<pre class="php" style="display:block;overflow-x:auto;padding:0.5em;background-color:#0b1220;color:#dce3f1">&lt;?php 
+
+header('content-type: application/json');
+$data = json_decode(file_get_contents('php://input'), true);
+file_put_contents('whatsapp.txt', '[' . date('Y-m-d H:i:s') . "]\n" . json_encode($data) . "\n\n", FILE_APPEND);
+$message = strtolower($data['message']);
+$from = strtolower($data['from']);
+$respon = false;
+
+function sayHello(){ return ['text' => 'Halloooo!']; }
+function gambar(){ return ['image' => ['url' => 'https://seeklogo.com/images/W/whatsapp-logo-A5A7F17DC1-seeklogo.com.png'], 'caption' => 'Logo whatsapp!']; }
+function button(){
+    $buttons = [
+        ['buttonId' => 'id1', 'buttonText' => ['displayText' => 'BUTTON 1'], 'type' => 1],
+        ['buttonId' => 'id2', 'buttonText' => ['displayText' => 'BUTTON 2'], 'type' => 1],
+        ['buttonId' => 'id3', 'buttonText' => ['displayText' => 'BUTTON 3'], 'type' => 1],
+    ];
+    return ['text' => 'HOLA, INI ADALAH PESAN BUTTON', 'footer' => 'ini pesan footer', 'buttons' => $buttons, 'headerType' => 1];
+}
+function lists(){
+    $sections = [[ 'title' => 'This is List menu', 'rows' => [ ['title'=>'List 1','description'=>'this is list one'], ['title'=>'List 2','description'=>'this is list two'] ] ]];
+    return ['text' => 'This is a list', 'title' => 'Title Chat', 'buttonText' => 'Select what will you do?', 'sections' => $sections];
+}
+if($message === 'hai'){ $respon = sayHello(); }
+else if($message === 'gambar'){ $respon = gambar(); }
+else if($message === 'tes button'){ $respon = button(); }
+else if($message === 'lists msg'){ $respon = lists(); }
+echo json_encode($respon);
+?&gt;</pre>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 </x-layout-dashboard>

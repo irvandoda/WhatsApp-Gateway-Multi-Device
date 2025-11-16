@@ -32,7 +32,15 @@ class SettingController extends Controller
     public function index()
     {
         $getHost = $this->getDomain(env('WA_URL_SERVER'));
-        $host = env('TYPE_SERVER') == 'other' ? $getHost->host : 'localhost';
+        // Determine host used for SSL generation UI:
+        // - For TYPE_SERVER=other, derive from WA_URL_SERVER
+        // - For hosting/localhost, try APP_URL host or current request host (not "localhost")
+        if (env('TYPE_SERVER') === 'other') {
+            $host = $getHost->host;
+        } else {
+            $appUrlHost = $this->getDomain(env('APP_URL'))->host ?: request()->getHost();
+            $host = $appUrlHost ?: 'localhost';
+        }
         $port = env('PORT_NODE');
         $isConnected = $this->checkPort($host, $port);
         $protocolMatch = $this->checkServerProtocol(env('WA_URL_SERVER'));
@@ -96,15 +104,41 @@ class SettingController extends Controller
             'portnode' => ['required'],
             'urlnode' => ['required_if:typeServer,other', 'nullable', 'url'],
         ]);
-        $urlnode =
-            $request->typeServer === 'other'
-            ? $request->urlnode . ':' . $request->portnode
-            : ($request->typeServer === 'hosting'
-                ? url('/')
-                : 'http://localhost:' . $request->portnode);
-        setEnv('TYPE_SERVER', $request->typeServer);
-        setEnv('PORT_NODE', $request->portnode);
+        // Normalize inputs
+        $typeServer = $request->input('typeServer');
+        $port = (string) $request->input('portnode');
+        $rawUrl = (string) $request->input('urlnode');
+
+        // Sanitize provided URL (remove trailing slashes)
+        $normalizedUrl = rtrim($rawUrl, "/");
+
+        // Build WA_URL_SERVER consistently per mode
+        if ($typeServer === 'other') {
+            // If user already included a port, don't duplicate
+            $parsed = parse_url($normalizedUrl);
+            $hasPort = isset($parsed['port']);
+            $urlnode = $normalizedUrl . ($hasPort ? '' : ':' . $port);
+        } elseif ($typeServer === 'hosting') {
+            // Same-origin (reverse proxy) - rely on app url
+            $urlnode = url('/');
+        } else {
+            // localhost mode for development/VPS direct
+            $scheme = 'http';
+            $urlnode = $scheme . '://localhost:' . $port;
+        }
+
+        // Persist to .env
+        setEnv('TYPE_SERVER', $typeServer);
+        setEnv('PORT_NODE', $port);
         setEnv('WA_URL_SERVER', $urlnode);
+
+        // Refresh config/env cache to reflect new values immediately
+        try {
+            Artisan::call('config:clear');
+            Artisan::call('cache:clear');
+        } catch (\Throwable $th) {
+            // ignore
+        }
         return back()->with('alert', [
             'type' => 'success',
             'msg' => 'Success Update configuration!',
@@ -422,6 +456,10 @@ class SettingController extends Controller
 
     public function checkhttpsorhttp($url)
     {
+        // Guard: avoid ValueError on empty/invalid URLs in PHP 8.4
+        if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return 'Unknown';
+        }
         $headers = @get_headers($url);
 
         if ($headers && isset($headers[0])) {

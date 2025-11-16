@@ -5,121 +5,98 @@
             @slot('msg', session('alert')['msg'])
         </x-alert>
     @endif
-    <!--breadcrumb-->
 
-    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Messages</div>
-
-        <div class="ps-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 p-0">
-                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Messages</li>
-                </ol>
-            </nav>
+    <div class="flex flex-wrap items-center gap-4">
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Messages</p>
+            <h2 class="text-2xl font-semibold text-white">Messages</h2>
         </div>
-        <div class="ms-auto">
-            <button onclick="clearAll()" type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                data-bs-target="#deleteAllModal">
-                <i class="bi bi-trash-fill"></i> Clear all
+        <div class="ml-auto">
+            <button onclick="clearAll()" type="button"
+                class="inline-flex items-center gap-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-200 hover:bg-rose-500/20">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M3 6h18M8 6v14m8-14v14M5 6l1-2h12l1 2" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Clear all
+            </button>
         </div>
     </div>
-    {{-- end breadcrumb --}}
 
-    {{-- table --}}
-    <div class="row">
-        <div class="col-12 col-lg-12 d-flex">
-            <div class="card w-100">
-                <div class="card-header py-3">
-                    <div class="row g-3">
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Sender</th>
-                                    <th>Number</th>
-                                    <th>Message</th>
-                                    <th>Status</th>
-                                    <th>Via</th>
-                                    <th>Last Updated</th>
-                                    <th>Action </th>
-
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @if ($messages->total() == 0)
-                                    <x-no-data colspan="6" text="No Messages History" />
+    <div class="mt-6 rounded-3xl border border-slate-800/60 bg-slate-950/70 p-5">
+        <div class="overflow-x-auto rounded-2xl border border-slate-800/70">
+            <table class="min-w-full divide-y divide-slate-800/80 text-sm">
+                <thead class="bg-slate-900/60 text-xs uppercase tracking-[0.25em] text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3 text-left">ID</th>
+                        <th class="px-4 py-3 text-left">Sender</th>
+                        <th class="px-4 py-3 text-left">Number</th>
+                        <th class="px-4 py-3 text-left">Message</th>
+                        <th class="px-4 py-3 text-left">Status</th>
+                        <th class="px-4 py-3 text-left">Via</th>
+                        <th class="px-4 py-3 text-left">Last Updated</th>
+                        <th class="px-4 py-3 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    @if ($messages->total() == 0)
+                        <tr>
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-500">No Messages History</td>
+                        </tr>
+                    @endif
+                    @foreach ($messages as $msg)
+                        <tr class="bg-slate-900/30">
+                            <td class="px-4 py-3">{{ $msg->id }}</td>
+                            <td class="px-4 py-3">{{ $msg->device->body ?? 'NA/Deleted' }}</td>
+                            <td class="px-4 py-3">{{ $msg->number }}</td>
+                            <td class="px-4 py-3">
+                                <span class="text-sky-300">{{ $msg->type }}</span>:
+                                {{ substr($msg->message, 0, 20) }}{{ strlen($msg->message) > 20 ? '...' : '' }}
+                            </td>
+                            <td class="px-4 py-3">
+                                @if ($msg->status == 'success')
+                                    <span class="inline-flex rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">Sent</span>
+                                @else
+                                    <span class="inline-flex rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1 text-xs text-rose-200">Failed</span>
                                 @endif
-                                @foreach ($messages as $msg)
-                                    <tr>
-                                        <td>{{ $msg->id }}</td>
-                                        <td>{{ $msg->device->body ?? 'NA/Deleted' }}</td>
-                                        <td>{{ $msg->number }}</td>
-                                        <td>
-                                            <span class="text-info">{{ $msg->type }} </span>:
-                                            {{ substr($msg->message, 0, 20) }}
-                                            {{ strlen($msg->message) > 20 ? '...' : '' }}
-                                        <td>
-                                            @if ($msg->status == 'success')
-                                                <span class="badge rounded-pill bg-success">Sent</span>
-                                            @else
-                                                <span class="badge rounded-pill bg-danger">Failed</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($msg->send_by == 'web')
-                                                <span class="badge rounded-pill bg-primary">Web</span>
-                                            @else
-                                                <span class="badge rounded-pill bg-warning">API</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ date('d M Y', strtotime($msg->updated_at)) }}</td>
-                                        <td>
-
-                                            <a onclick="resend({{ $msg->id }}, '{{ $msg->status }}')"
-                                                class="btn btn-sm btn-primary">
-                                                <i class="bx bx-refresh"></i> Resend
-                                            </a>
-
-                                        </td>
-
-                                    </tr>
-                                @endforeach
-
-                            </tbody>
-                        </table>
-                    </div>
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                            <li class="page-item {{ $messages->currentPage() == 1 ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $messages->previousPageUrl() }}">Previous</a>
-                            </li>
-
-                            @for ($i = 1; $i <= $messages->lastPage(); $i++)
-                                <li class="page-item {{ $messages->currentPage() == $i ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $messages->url($i) }}">{{ $i }}</a>
-                                </li>
-                            @endfor
-
-                            <li
-                                class="page-item {{ $messages->currentPage() == $messages->lastPage() ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $messages->nextPageUrl() }}">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if ($msg->send_by == 'web')
+                                    <span class="inline-flex rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-1 text-xs text-sky-200">Web</span>
+                                @else
+                                    <span class="inline-flex rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">API</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">{{ date('d M Y', strtotime($msg->updated_at)) }}</td>
+                            <td class="px-4 py-3">
+                                <button onclick="resend({{ $msg->id }}, '{{ $msg->status }}')"
+                                    class="rounded-2xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-xs text-sky-200 hover:bg-sky-500/20">
+                                    Resend
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
 
+        @if ($messages->hasPages())
+            <nav class="mt-6 flex justify-center">
+                <ul class="inline-flex items-center gap-2 rounded-2xl border border-slate-800/60 bg-slate-900/60 px-3 py-2 text-xs">
+                    <li>
+                        <a class="{{ $messages->onFirstPage() ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:text-white' }}" href="{{ $messages->previousPageUrl() }}">Previous</a>
+                    </li>
+                    @for ($i = 1; $i <= $messages->lastPage(); $i++)
+                        <li>
+                            <a class="{{ $messages->currentPage() == $i ? 'rounded-xl bg-brand-neon/15 px-3 py-1 text-brand-neon' : 'px-3 py-1 text-slate-400 hover:text-white' }}" href="{{ $messages->url($i) }}">{{ $i }}</a>
+                        </li>
+                    @endfor
+                    <li>
+                        <a class="{{ $messages->currentPage() == $messages->lastPage() ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:text-white' }}" href="{{ $messages->nextPageUrl() }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        @endif
     </div>
-    {{-- end table --}}
-
 </x-layout-dashboard>
 <script>
     function clearAll(id) {
@@ -144,12 +121,10 @@
     }
 
     function resend(id, status) {
-
         if (status == 'success') {
             toastr.info('Message already sent');
             return;
         }
-
         $.ajax({
             url: '/resend-message',
             type: 'POST',
@@ -170,6 +145,5 @@
                 toastr.error('Something went wrong');
             }
         });
-
     }
 </script>

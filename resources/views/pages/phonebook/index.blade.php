@@ -7,207 +7,169 @@
         </x-alert>
     @endif
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
+        <div class="rounded-3xl border border-rose-500/40 bg-rose-500/10 px-6 py-4 text-sm text-rose-100 mb-6">
+            <ul class="list-disc pl-4">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
-    <!--breadcrumb-->
-    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Phonebook</div>
-        <div class="ps-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 p-0">
-                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Contact</li>
-                </ol>
-            </nav>
+
+    <div class="flex flex-wrap items-center gap-4">
+        <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Phonebook</p>
+            <h2 class="text-2xl font-semibold text-white">Contact</h2>
         </div>
-    </div>
-    <div class="ms-auto my-4 items-end">
-        <div class="btn-group">
-            <form action="{{ route('fetch.groups') }}" method="post">
+        <div class="ml-auto flex items-center gap-3">
+            <form action="{{ route('fetch.groups') }}" method="post" class="inline">
                 @csrf
                 <input type="hidden" name="device"
                     value="{{ Session::has('selectedDevice') ? Session::get('selectedDevice')['device_id'] : '' }}">
-
-                <button type="submit" class="btn btn-info btn-sm text-white">
-                    Fetch From Selected Device <i class="bi bi-whatsapp"></i>
+                <button type="submit"
+                    class="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/20">
+                    Fetch From Selected Device
                 </button>
             </form>
-
-
-            <button type="submit" class="btn btn-secondary btn-sm mx-2" onclick="clearPhonebook()">
-                Clear Phonebook <i class="bi bi-trash"></i>
+            <button type="button" class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-200 hover:bg-rose-500/20" onclick="clearPhonebook()">
+                Clear Phonebook
             </button>
-
-
-
         </div>
     </div>
-    <!--end breadcrumb-->
-    <div class="email-wrapper">
-        <div class="email-sidebar">
-            <div class="email-sidebar-header d-grid"> <button data-bs-toggle="modal" data-bs-target="#addTag"
-                    class="btn btn-primary compose-mail-btn"><i class="bi bi-plus-lg me-2"></i>Phonebook</button>
-                <input type="text" class="form-control mt-2 search-phonebook" placeholder="Search phonebook">
-            </div>
-            <div class="email-sidebar-content">
-                <div class="email-navigation">
-                    <div class="list-group list-group-flush phone-book-list"
-                        style="overflow-y: scroll !important; height : 140% ;">
-                        <div class="d-flex justify-content-center align-items-center load-phonebook text-danger">
 
-                        </div>
+    <div class="mt-6 grid gap-6 lg:grid-cols-12">
+        <div class="lg:col-span-4 space-y-4">
+            <div class="rounded-3xl border border-slate-800/60 bg-slate-900/60 p-4">
+                <div class="flex items-center justify-between gap-3">
+                    <button data-bs-toggle="modal" data-bs-target="#addTag"
+                        class="rounded-2xl border border-brand-neon/40 bg-brand-neon/10 px-4 py-2 text-sm font-semibold text-brand-neon hover:bg-brand-neon/20">
+                        + Phonebook
+                    </button>
+                    <input type="text" class="search-phonebook w-48 rounded-2xl border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/40" placeholder="Search phonebook">
+                </div>
+                <div class="mt-4">
+                    <div class="phone-book-list max-h-[600px] overflow-y-auto rounded-2xl border border-slate-800/60">
+                        <div class="load-phonebook flex items-center justify-center py-6 text-rose-300"></div>
                     </div>
                 </div>
-            </div>
-            <div class="email-meeting">
-                <div class="list-group list-group-flush">
-                    <button class="btn  load-more" data-page="1">
+                <div class="mt-3 flex justify-center">
+                    <button class="load-more rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-2 text-sm text-slate-300 hover:text-white" data-page="1">
                         Load More
                     </button>
                 </div>
             </div>
         </div>
 
-
-        <div class="email-header d-xl-flex align-items-center">
-            <div class="d-flex align-items-center">
-                <div class="email-toggle-btn"><i class='bx bx-menu'></i>
+        <div class="lg:col-span-8 space-y-4">
+            <div class="rounded-3xl border border-slate-800/60 bg-slate-900/60 p-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <button onclick="deleteAllContact()" class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-500/20">
+                            Delete All
+                        </button>
+                    </div>
+                    <div class="ml-auto flex items-center gap-2">
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-500/60">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="11" cy="11" r="7" stroke-width="1.5" />
+                                    <path d="m20 20-3-3" stroke-width="1.5" stroke-linecap="round" />
+                                </svg>
+                            </span>
+                            <input type="text" class="search-contact w-64 rounded-2xl border border-slate-800 bg-slate-900/70 py-2 pl-9 pr-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/40" placeholder="Search contacts">
+                        </div>
+                        <button class="add-contact rounded-2xl border border-brand-neon/40 bg-brand-neon/10 px-3 py-2 text-xs font-semibold text-brand-neon hover:bg-brand-neon/20" onclick="addContact()">
+                            Add Contact
+                        </button>
+                        <button class="import-contact rounded-2xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/20" onclick="importContact()">
+                            Import
+                        </button>
+                        <button class="export-contact rounded-2xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/20" onclick="exportContact()">
+                            Export
+                        </button>
+                    </div>
                 </div>
-                <button onclick="deleteAllContact()" class="btn btn-danger btn-sm">
-                    <i class="bi bi-trash"></i> All
-                </button>
-
-            </div>
-            <div class="flex-grow-1 mx-xl-2 my-2 my-xl-0">
-                <div class="input-group"> <span class="input-group-text bg-transparent"><i
-                            class="bi bi-search"></i></span>
-                    <input type="text" class="form-control search-contact" placeholder="Search contacts">
+                <div class="contacts-list mt-4"></div>
+                <div class="process-get-contact mt-6 space-y-3">
+                    <div class="skeleton h-5 w-1/3"></div>
+                    <div class="skeleton h-5 w-2/3"></div>
+                    <div class="skeleton h-5 w-1/2"></div>
                 </div>
-            </div>
-            <div>
-                <button class="btn btn-primary btn-sm add-contact" onclick="addContact()">
-                    Add Contact
-                </button>
-                <button class="btn btn-success btn-sm import-contact" onclick="importContact()">
-                    <i class="bi bi-upload"></i> Import
-                </button>
-                <button class="btn btn-warning btn-sm export-contact" onclick="exportContact()">
-                    <i class="bi bi-download"></i> Export
-                </button>
-            </div>
-
-        </div>
-        <div class="email-content">
-
-            <div class="contacts-list email-list">
-
-            </div>
-            {{-- spinner --}}
-            <div class="d-flex justify-content-center align-items-center mt-4 process-get-contact">
-                Please select phonebook to show contact
             </div>
         </div>
-
     </div>
-    <!--start compose mail-->
 
-    <!--end compose mail-->
-    <!--start email overlay-->
-    <div class="overlay email-toggle-btn-mobile">Click to close tab</div>
+    <div class="overlay email-toggle-btn-mobile hidden rounded-2xl border border-slate-800/60 bg-slate-900/80 px-3 py-2 text-xs text-slate-300">Click to close tab</div>
 
-
-    {{-- modal add phonebook --}}
     <div class="modal fade" id="addTag" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Tag</h5>
+            <div class="modal-content rounded-3xl border border-slate-800/70 bg-slate-950/95 shadow-glow">
+                <div class="modal-header border-b border-slate-800/60 px-5 py-4">
+                    <h5 class="modal-title text-white text-lg font-semibold" id="exampleModalLabel">Add Tag</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form action="{{ route('tag.store') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body px-5 py-5">
+                    <form action="{{ route('tag.store') }}" method="POST" enctype="multipart/form-data" class="space-y-3">
                         @csrf
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" id="name" required>
+                        <label for="name" class="form-label text-slate-300 text-sm">Name</label>
+                        <input type="text" name="name" class="form-control contact-name w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30" id="name" required>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="submit" class="btn btn-primary">Add</button>
+                <div class="modal-footer border-t border-slate-800/60 px-5 py-4">
+                    <button type="button" class="btn btn-secondary rounded-2xl border border-slate-800/80 bg-slate-900/70 px-4 py-2 text-sm text-slate-300 hover:text-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="submit" class="btn btn-primary rounded-2xl border border-brand-neon/40 bg-brand-neon/10 px-4 py-2 text-sm font-semibold text-brand-neon hover:bg-brand-neon/20">Add</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <!-- modal add contact -->
+
     <div class="modal fade" id="addContact" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Contact</h5>
+            <div class="modal-content rounded-3xl border border-slate-800/70 bg-slate-950/95 shadow-glow">
+                <div class="modal-header border-b border-slate-800/60 px-5 py-4">
+                    <h5 class="modal-title text-white text-lg font-semibold" id="exampleModalLabel">Add Contact</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form class="add-contact-form" method="POST" enctype="multipart/form-data">
+                <div class="modal-body px-5 py-5">
+                    <form class="add-contact-form" method="POST" enctype="multipart/form-data" class="space-y-3">
                         @csrf
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control contact-name" id="name"
-                            required>
-                        <label for="number" class="form-label">Number</label>
-                        <input type="number" name="number" class="form-control contact-number" id="number"
-                            required>
+                        <label for="name" class="form-label text-slate-300 text-sm">Name</label>
+                        <input type="text" name="name" class="form-control contact-name w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30" id="name" required>
+                        <label for="number" class="form-label text-slate-300 text-sm">Number</label>
+                        <input type="number" name="number" class="form-control contact-number w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30" id="number" required>
                         <input type="hidden" class="input_phonebookid" name="tag_id" value=" ">
-
-
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="submit" class="btn btn-primary add-contact">Add</button>
+                <div class="modal-footer border-t border-slate-800/60 px-5 py-4">
+                    <button type="button" class="btn btn-secondary rounded-2xl border border-slate-800/80 bg-slate-900/70 px-4 py-2 text-sm text-slate-300 hover:text-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="submit" class="btn btn-primary add-contact rounded-2xl border border-brand-neon/40 bg-brand-neon/10 px-4 py-2 text-sm font-semibold text-brand-neon hover:bg-brand-neon/20">Add</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <!-- end modal add contact -->
-    <!-- modal import contact -->
-    <div class="modal fade" id="importContacts" tabindex="-1" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+
+    <div class="modal fade" id="importContacts" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Import Contacts</h5>
+            <div class="modal-content rounded-3xl border border-slate-800/70 bg-slate-950/95 shadow-glow">
+                <div class="modal-header border-b border-slate-800/60 px-5 py-4">
+                    <h5 class="modal-title text-white text-lg font-semibold" id="exampleModalLabel">Import Contacts</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form id="import-contact-form" method="POST" enctype="multipart/form-data">
+                <div class="modal-body px-5 py-5">
+                    <form id="import-contact-form" method="POST" enctype="multipart/form-data" class="space-y-3">
                         @csrf
-                        <label for="fileContacts" class="form-label">File (xlsx )</label>
-                        <input {{-- accept xlsx and csv --}} accept=".xlsx" type="file" name="fileContacts"
-                            class="form-control file-import" id="fileContacts" required>
-
+                        <label for="fileContacts" class="form-label text-slate-300 text-sm">File (xlsx)</label>
+                        <input accept=".xlsx" type="file" name="fileContacts" class="form-control file-import w-full rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-200 focus:border-brand-neon focus:outline-none focus:ring-2 focus:ring-brand-neon/30" id="fileContacts" required>
                         <input type="hidden" name="tag_id" value="" class="import_phonebookid">
-
-
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="submit" class="btn btn-primary">Import</button>
+                <div class="modal-footer border-t border-slate-800/60 px-5 py-4">
+                    <button type="button" class="btn btn-secondary rounded-2xl border border-slate-800/80 bg-slate-900/70 px-4 py-2 text-sm text-slate-300 hover:text-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="submit" class="btn btn-primary rounded-2xl border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-200 hover:bg-sky-500/20">Import</button>
                     </form>
                 </div>
             </div>
         </div>
-        {{-- end modal import contact --}}
-
-
     </div>
-    <!-- end modal import contact -->
 
-    </div>
     <script src="{{ asset('js/phonebook.js') }}"></script>
 </x-layout-dashboard>

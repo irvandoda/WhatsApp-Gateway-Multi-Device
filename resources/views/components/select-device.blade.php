@@ -13,27 +13,33 @@
 </div>
 
 <script>
-    $('#device_idd').on('change', function() {
-        var device = $(this).val();
-        $.ajax({
-            url: "{{ route('home.setSessionSelectedDevice') }}",
-            type: "POST",
-            data: {
-                _token: "{{ csrf_token() }}",
-                device: device
-            },
-            success: function(data) {
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectEl = document.getElementById('device_idd');
+        if (!selectEl) return;
+        selectEl.addEventListener('change', async function (e) {
+            const device = e.target.value;
+            try {
+                const res = await fetch("{{ route('home.setSessionSelectedDevice') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        "Accept": "application/json",
+                    },
+                    body: JSON.stringify({ device })
+                });
+                const data = await res.json();
                 if (data.error) {
-                    toastr.error(data.msg);
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1000);
+                    if (window.toastr) toastr.error(data.msg);
                 } else {
-                    toastr.success(data.msg);
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1000);
+                    if (window.toastr) toastr.success(data.msg);
                 }
+            } catch (err) {
+                if (window.toastr) toastr.error("{{ __('Something went wrong') }}");
+            } finally {
+                setTimeout(function () {
+                    location.reload();
+                }, 800);
             }
         });
     });
