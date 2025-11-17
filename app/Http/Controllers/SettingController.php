@@ -43,6 +43,15 @@ class SettingController extends Controller
         }
         $port = env('PORT_NODE');
         $isConnected = $this->checkPort($host, $port);
+        
+        // Auto-start Node worker if not connected
+        if (!$isConnected && $port) {
+            $this->ensureNodeWorkerRunning($port);
+            // Re-check after auto-start
+            sleep(2);
+            $isConnected = $this->checkPort($host, $port);
+        }
+        
         // Auto-heal WA_URL_SERVER if TLS CN mismatch and we can detect Node's cert CN
         try {
             if (!$isConnected || (stripos($this->checkServerProtocol(env('WA_URL_SERVER')), 'mismatch') !== false)) {
@@ -96,6 +105,14 @@ class SettingController extends Controller
             fclose($connection);
             return true;
         }
+        
+        // Always try 127.0.0.1 as fallback (Node worker listens on localhost)
+        $connection = @fsockopen('127.0.0.1', $port, $errno, $errstr, $timeout);
+        if (is_resource($connection)) {
+            fclose($connection);
+            return true;
+        }
+        
         // If failed and host appears to be this server, try loopback fallbacks
         try {
             $publicIp = gethostbyname($host);
@@ -113,6 +130,33 @@ class SettingController extends Controller
         } catch (\Throwable $th) {
             // ignore
         }
+        
+        // Method: Try HTTP/HTTPS endpoint test (most reliable for HTTPS Node worker)
+        try {
+            $waUrl = env('WA_URL_SERVER');
+            if ($waUrl) {
+                // Test actual endpoint - any response means server is running
+                $testUrl = rtrim($waUrl, '/') . '/ws/status/test';
+                $response = Http::timeout($timeout)->withoutVerifying()->get($testUrl);
+                // Any response (even 404/500) means server is running and responding
+                if ($response->status() >= 200) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            // If WA_URL_SERVER test fails, try with host:port directly
+            try {
+                $scheme = (strpos($host, 'localhost') !== false || $host === '127.0.0.1') ? 'http' : 'https';
+                $testUrl = $scheme . '://' . $host . ':' . $port . '/ws/status/test';
+                $response = Http::timeout($timeout)->withoutVerifying()->get($testUrl);
+                if ($response->status() >= 200) {
+                    return true;
+                }
+            } catch (\Throwable $e2) {
+                // ignore
+            }
+        }
+        
         return false;
     }
     public function checkServerProtocol($url)
@@ -237,10 +281,118 @@ class SettingController extends Controller
         } catch (\Throwable $th) {
             // ignore
         }
+        
+        // Auto-start Node worker if not running
+        $nodeStarted = $this->ensureNodeWorkerRunning($port);
+        
+        // Wait a bit more and verify connection after start
+        if ($nodeStarted) {
+            sleep(2); // Additional wait for Node to fully initialize
+            // Re-check port connection
+            $host = $this->getDomain($urlnode)->host ?: '127.0.0.1';
+            $isConnected = $this->checkPort($host, $port);
+        }
+        
+        $msg = 'Success Update configuration!';
+        if ($nodeStarted) {
+            $msg .= ' Node worker started automatically.';
+            if (isset($isConnected) && $isConnected) {
+                $msg .= ' Port is now connected.';
+            }
+        }
+        
         return back()->with('alert', [
             'type' => 'success',
-            'msg' => 'Success Update configuration!',
+            'msg' => $msg,
         ]);
+    }
+    
+    /**
+     * Ensure Node worker is running on specified port
+     * Returns true if started, false if already running or failed
+     */
+    private function ensureNodeWorkerRunning($port)
+    {
+        try {
+            // Check if port is already in use (Node worker running)
+            $connection = @fsockopen('127.0.0.1', $port, $errno, $errstr, 2);
+            if (is_resource($connection)) {
+                fclose($connection);
+                // Port is open, check if it's actually Node worker by testing endpoint
+                try {
+                    $waUrl = env('WA_URL_SERVER');
+                    if ($waUrl) {
+                        $testUrl = rtrim($waUrl, '/') . '/ws/status/test';
+                        $response = Http::timeout(2)->withoutVerifying()->get($testUrl);
+                        if ($response->status() >= 200) {
+                            // Node worker is already running
+                            return false;
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    // Endpoint test failed, might not be Node worker
+                }
+            }
+            
+            // Node worker not running, start it
+            $serverJsPath = base_path('server.js');
+            if (!file_exists($serverJsPath)) {
+                Log::warning('server.js not found at: ' . $serverJsPath);
+                return false;
+            }
+            
+            // Kill any existing Node process for this server.js
+            $this->killExistingNodeWorker();
+            
+            // Start Node worker in background
+            $logFile = base_path('node.log');
+            $command = sprintf(
+                'cd %s && nohup node server.js > %s 2>&1 &',
+                escapeshellarg(base_path()),
+                escapeshellarg($logFile)
+            );
+            
+            exec($command, $output, $returnVar);
+            
+            if ($returnVar !== 0) {
+                Log::error('Failed to start Node worker', ['output' => $output, 'return_var' => $returnVar]);
+                return false;
+            }
+            
+            // Wait a bit for Node worker to start
+            sleep(3);
+            
+            // Verify Node worker started successfully
+            $connection = @fsockopen('127.0.0.1', $port, $errno, $errstr, 3);
+            if (is_resource($connection)) {
+                fclose($connection);
+                return true;
+            }
+            
+            return false;
+        } catch (\Throwable $th) {
+            Log::error('Error ensuring Node worker running', ['error' => $th->getMessage()]);
+            return false;
+        }
+    }
+    
+    /**
+     * Kill existing Node worker processes
+     */
+    private function killExistingNodeWorker()
+    {
+        try {
+            $serverJsPath = base_path('server.js');
+            $pattern = escapeshellarg($serverJsPath);
+            
+            // Find and kill Node processes running server.js
+            exec("pkill -f 'node.*server.js' 2>/dev/null", $output, $returnVar);
+            
+            // Wait a bit for processes to terminate
+            usleep(500000); // 0.5 seconds
+        } catch (\Throwable $th) {
+            // ignore errors
+        }
     }
 
     public function test_database_connection(Request $request)

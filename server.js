@@ -1,4 +1,5 @@
 import * as wa from "./server/whatsapp.js";
+import { deleteCredentials } from "./server/whatsapp.js";
 import fs from "fs";
 import * as dbs from "./server/database/index.js";
 import dotenv from "dotenv";
@@ -214,6 +215,17 @@ app.get("/ws/qrcode/:token", async (req, res) => {
   return res.json({ ok: true, token, data, message: "please scan" });
 });
 
+// Logout device endpoint (HTTP fallback)
+app.post("/ws/logout/:token", async (req, res) => {
+  try {
+    const token = req.params.token;
+    await deleteCredentials(token, req.io);
+    return res.json({ ok: true, message: "Device logged out successfully" });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e?.message || "logout_failed" });
+  }
+});
+
 // Get connection status and profile if connected
 app.get("/ws/status/:token", async (req, res) => {
   const token = req.params.token;
@@ -223,9 +235,25 @@ app.get("/ws/status/:token", async (req, res) => {
       let number = s.user.id.split(":");
       number = number[0] + "@s.whatsapp.net";
       const ppUrl = await getProfileUrl(token, number);
-      return res.json({ ok: true, connected: true, user: s.user, ppUrl });
+      
+      // Get last_active from database
+      const { dbQuery } = await import("./server/database/index.js");
+      const deviceInfo = await dbQuery(
+        `SELECT last_active FROM devices WHERE body = '${token}' LIMIT 1`
+      );
+      const lastActive = deviceInfo.length > 0 ? deviceInfo[0].last_active : null;
+      
+      return res.json({ ok: true, connected: true, user: s.user, ppUrl, lastActive });
     }
-    return res.json({ ok: true, connected: false });
+    
+    // Even if not connected, return last_active if available
+    const { dbQuery } = await import("./server/database/index.js");
+    const deviceInfo = await dbQuery(
+      `SELECT last_active FROM devices WHERE body = '${token}' LIMIT 1`
+    );
+    const lastActive = deviceInfo.length > 0 ? deviceInfo[0].last_active : null;
+    
+    return res.json({ ok: true, connected: false, lastActive });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e?.message || "status_failed" });
   }

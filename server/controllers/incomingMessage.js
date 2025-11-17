@@ -5,6 +5,7 @@ import {
   getUrlWebhook,
   getDevice,
 } from "../database/model.js";
+import { updateLastActive } from "../database/index.js";
 import {
   handleMediaReply,
   handleButtonReply,
@@ -33,6 +34,9 @@ const IncomingMessage = async (msg, sock) => {
 
     const senderName = msg?.pushName || "";
     const numberWa = sock.user.id.split(":")[0];
+    
+    // Update last_active timestamp when receiving message from mobile
+    await updateLastActive(numberWa);
     const { command, media, from } = await parseIncomingMessage(msg, sock);
 
     const participant = msg.key.participant;

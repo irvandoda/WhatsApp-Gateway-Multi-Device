@@ -24,6 +24,29 @@ const setStatus = (device, status) => {
   }
 };
 
+const updateLastActive = async (device) => {
+  try {
+    // Update last_active timestamp (column should exist, but handle gracefully if not)
+    await dbQuery(`UPDATE devices SET last_active = NOW() WHERE body = '${device}'`);
+    return true;
+  } catch (error) {
+    // If column doesn't exist, try to create it
+    if (error?.sqlMessage?.includes('Unknown column') || error?.message?.includes('Unknown column')) {
+      try {
+        await dbQuery(`ALTER TABLE devices ADD COLUMN last_active TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP`);
+        // Retry update after creating column
+        await dbQuery(`UPDATE devices SET last_active = NOW() WHERE body = '${device}'`);
+        return true;
+      } catch (alterError) {
+        console.log(`[updateLastActive] Failed to create column for ${device}:`, alterError?.message);
+        return false;
+      }
+    }
+    console.log(`[updateLastActive] Error for ${device}:`, error?.message);
+    return false;
+  }
+};
+
 function dbQuery(query) {
   return new Promise((data) => {
     db.query(query, (err, res) => {
@@ -38,6 +61,6 @@ function dbQuery(query) {
   });
 }
 
-export { setStatus, dbQuery, db };
+export { setStatus, updateLastActive, dbQuery, db };
 
 // EXPORT

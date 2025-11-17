@@ -67,6 +67,7 @@
                         <li class="name text-slate-300">{{ __('Name') }} : </li>
                         <li class="number text-slate-300">{{ __('Number') }} : </li>
                         <li class="device text-slate-300">{{ __('Device') }} : </li>
+                        <li class="last-active text-slate-300">{{ __('Last Active') }} : <span class="last-active-time text-slate-400">-</span></li>
                     </ul>
                 </div>
             </div>
@@ -82,6 +83,37 @@
         let device = '{{ $number->body }}';
         const TYPE_SERVER = '{{ env('TYPE_SERVER') }}';
         const WA_URL_SERVER = '{{ env('WA_URL_SERVER') }}';
+        
+        // Helper function to format time ago
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000); // seconds
+            if (diff < 60) return diff + ' {{ __('seconds ago') }}';
+            const minutes = Math.floor(diff / 60);
+            if (minutes < 60) return minutes + ' {{ __('minutes ago') }}';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + ' {{ __('hours ago') }}';
+            const days = Math.floor(hours / 24);
+            return days + ' {{ __('days ago') }}';
+        }
+        
+        // Poll last_active every 10 seconds
+        setInterval(() => {
+            fetch(`/ws/status/${device}`).then(r => r.json()).then(j => {
+                if (j.lastActive) {
+                    const lastActiveDate = new Date(j.lastActive);
+                    const timeAgo = getTimeAgo(lastActiveDate);
+                    $('.last-active-time').text(timeAgo);
+                }
+            }).catch(_ => {});
+        }, 10000);
+        
+        // Event delegation for logout button (works even if button is created dynamically)
+        $(document).on('click', '#logout', function(e) {
+            e.preventDefault();
+            const deviceNumber = $(this).data('device') || device;
+            logout(deviceNumber);
+        });
 
         function normalizeUrl(url) {
             try {
@@ -225,6 +257,11 @@
                                 $('.name').html(`{{ __('Name') }} : ${j.user.name}`)
                                 $('.number').html(`{{ __('Number') }} : ${j.user.id}`)
                                 $('.device').html(`{{ __('Device / Token') }} : Not detected - ${device}`)
+                                if (j.lastActive) {
+                                    const lastActiveDate = new Date(j.lastActive);
+                                    const timeAgo = getTimeAgo(lastActiveDate);
+                                    $('.last-active-time').text(timeAgo);
+                                }
                                 $('.imageee').html(`<img src="${j.ppUrl}" class="h-[300px] rounded-2xl border border-emerald-500/30" alt="profile">`)
                                 $('.statusss').html(`
                                     <button type="button" disabled
@@ -233,9 +270,8 @@
                                     </button>
                                 `);
                                 $('.logoutbutton').html(`
-                                    <button type="button" id="logout"
-                                        class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200 hover:bg-rose-500/20 transition"
-                                        onclick="logout('${device}')">
+                                    <button type="button" id="logout" data-device="${device}"
+                                        class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200 hover:bg-rose-500/20 transition">
                                         {{ __('Logout') }}
                                     </button>
                                 `);
@@ -318,6 +354,14 @@
                 $('.name').html(`{{ __('Name') }} : ${user.name}`)
                 $('.number').html(`{{ __('Number') }} : ${user.id}`)
                 $('.device').html(`{{ __('Device / Token') }} : Not detected - ${token}`)
+                // Fetch last_active from status endpoint
+                fetch(`/ws/status/${token}`).then(r => r.json()).then(j => {
+                    if (j.lastActive) {
+                        const lastActiveDate = new Date(j.lastActive);
+                        const timeAgo = getTimeAgo(lastActiveDate);
+                        $('.last-active-time').text(timeAgo);
+                    }
+                }).catch(_ => {});
                 $('.imageee').html(`<img src="${ppUrl}" class="h-[300px] rounded-2xl border border-emerald-500/30" alt="profile">`)
                 $('.statusss').html(`
                     <button type="button" disabled
@@ -326,12 +370,11 @@
                     </button>
                 `)
                 $('.logoutbutton').html(`
-                    <button type="button" id="logout"
-                        class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200 hover:bg-rose-500/20 transition"
-                        onclick="logout({{ $number->body }})">
+                    <button type="button" id="logout" data-device="{{ $number->body }}"
+                        class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200 hover:bg-rose-500/20 transition">
                         {{ __('Logout') }}
                     </button>
-                `)
+                `);
             }
         })
 
@@ -380,8 +423,75 @@
             }
         });
 
-        function logout(device) {
-            socket.emit('LogoutDevice', device)
-        }
+        // Make logout function globally accessible
+        window.logout = async function(device) {
+            // Konfirmasi sebelum logout
+            if (!confirm('{{ __('Are you sure you want to logout this device? You will need to scan QR again to reconnect.') }}')) {
+                return;
+            }
+            
+            // Disable button saat proses logout
+            const $logoutBtn = $('#logout');
+            if ($logoutBtn.length) {
+                $logoutBtn.prop('disabled', true).text('{{ __('Logging out...') }}');
+            }
+            
+            try {
+                // Try Socket.IO first if connected
+                if (socket && socket.connected) {
+                    socket.emit('LogoutDevice', device);
+                    // Wait a bit for logout to process
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } else {
+                    // Fallback to HTTP endpoint
+                    const response = await fetch(`/ws/logout/${device}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (!response.ok) {
+                        throw new Error('Logout failed');
+                    }
+                }
+                
+                // Show success message and redirect
+                $('.statusss').html(`
+                    <button type="button" disabled
+                        class="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+                        {{ __('Device logged out successfully. Redirecting...') }}
+                    </button>
+                `);
+                
+                // Redirect to home after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/home';
+                }, 2000);
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Try direct HTTP endpoint as last resort
+                try {
+                    const response = await fetch(`/ws/logout/${device}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (response.ok) {
+                        setTimeout(() => {
+                            window.location.href = '/home';
+                        }, 2000);
+                    } else {
+                        alert('{{ __('Logout failed. Please try again.') }}');
+                        const $logoutBtn = $('#logout');
+                        if ($logoutBtn.length) {
+                            $logoutBtn.prop('disabled', false).text('{{ __('Logout') }}');
+                        }
+                    }
+                } catch (e) {
+                    alert('{{ __('Logout failed. Please try again.') }}');
+                    const $logoutBtn = $('#logout');
+                    if ($logoutBtn.length) {
+                        $logoutBtn.prop('disabled', false).text('{{ __('Logout') }}');
+                    }
+                }
+            }
+        };
     }
 </script>

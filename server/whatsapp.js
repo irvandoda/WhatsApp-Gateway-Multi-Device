@@ -10,8 +10,8 @@ import { getDevice } from "./database/model.js";
 import QRCode from "qrcode";
 import fs from "fs";
 
-import { sock, qrcode, pairingCode, intervalStore } from "./wa/store.js";
-import { setStatus } from "./database/index.js";
+import { sock, qrcode, pairingCode, intervalStore, connectionCheckStore } from "./wa/store.js";
+import { setStatus, updateLastActive } from "./database/index.js";
 import { IncomingMessage } from "./controllers/incomingMessage.js";
 import { getSavedPhoneNumber } from "./lib/helper.js";
 
@@ -116,11 +116,41 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
     });
   }
 
+  // Add connection state monitoring
+  let lastConnectionCheck = Date.now();
+  if (connectionCheckStore[token]) {
+    clearInterval(connectionCheckStore[token]);
+  }
+  connectionCheckStore[token] = setInterval(() => {
+    if (sock[token] && sock[token].user) {
+      const now = Date.now();
+      // If no connection update in last 2 minutes, check connection health
+      if (now - lastConnectionCheck > 120000) {
+        try {
+          const wsState = sock[token].ws?.readyState;
+          if (wsState !== 1) { // Not OPEN
+            console.log(`[connection-check] Connection unhealthy for ${token}, state: ${wsState}`);
+            // Force reconnection check
+            lastConnectionCheck = now;
+          }
+        } catch (e) {
+          console.log(`[connection-check] Error checking connection for ${token}:`, e?.message);
+        }
+      }
+    } else {
+      if (connectionCheckStore[token]) {
+        clearInterval(connectionCheckStore[token]);
+        delete connectionCheckStore[token];
+      }
+    }
+  }, 30000); // Check every 30 seconds
+
   sock[token].ev.process(async (events) => {
     if (events["connection.update"]) {
       const update = events["connection.update"];
       const { connection, lastDisconnect, qr } = update;
       console.log("connection", update);
+      lastConnectionCheck = Date.now(); // Update last check time
 
       if (connection === "close") {
         const ErrorMessage = lastDisconnect.error?.output?.payload?.message;
@@ -130,6 +160,11 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
         if (intervalStore[token]) {
           clearInterval(intervalStore[token]);
           delete intervalStore[token];
+        }
+        // Clear connection check interval when connection closes
+        if (connectionCheckStore[token]) {
+          clearInterval(connectionCheckStore[token]);
+          delete connectionCheckStore[token];
         }
 
         if (
@@ -222,6 +257,12 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
         number = number[0] + "@s.whatsapp.net";
         const ppUrl = await getPpUrl(token, number);
 
+        // Update last_active when connection opens
+        await updateLastActive(token);
+        
+        // Reset connection check timer
+        lastConnectionCheck = Date.now();
+
         io?.emit("connection-open", {
           token,
           user: sock[token].user,
@@ -234,20 +275,44 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
         if (intervalStore[token]) {
           clearInterval(intervalStore[token]);
         }
-        // Send presence update every 30 seconds to keep connection alive
+        // Send presence update every 20 seconds to keep connection alive (more frequent)
         intervalStore[token] = setInterval(async () => {
           try {
             if (sock[token] && sock[token].user) {
-              await sendAvailable(token);
+              // Check if connection is still active
+              const connectionState = sock[token].ws?.readyState;
+              if (connectionState === 1) { // WebSocket.OPEN
+                await sendAvailable(token);
+                // Update last_active timestamp on keep-alive
+                await updateLastActive(token);
+              } else {
+                // Connection seems closed, try to reconnect
+                console.log(`[keep-alive] Connection state abnormal for ${token}, state: ${connectionState}`);
+                if (connectionState === 3) { // WebSocket.CLOSED
+                  // Trigger reconnection
+                  delete sock[token];
+                  setTimeout(() => {
+                    connectToWhatsApp(token, io);
+                  }, 2000);
+                }
+              }
             }
           } catch (e) {
             console.log(`[keep-alive] Error for ${token}:`, e?.message);
+            // If error occurs, try to reconnect
+            if (e?.message?.includes('closed') || e?.message?.includes('disconnect')) {
+              delete sock[token];
+              setTimeout(() => {
+                connectToWhatsApp(token, io);
+              }, 3000);
+            }
           }
-        }, 30000); // Every 30 seconds
+        }, 20000); // Every 20 seconds (more frequent for better reliability)
         
-        // Also send initial presence
+        // Also send initial presence and update last_active
         try {
           await sendAvailable(token);
+          await updateLastActive(token);
         } catch (e) {
           console.log(`[initial-presence] Error for ${token}:`, e?.message);
         }
@@ -449,6 +514,10 @@ async function deleteCredentials(token, io = null) {
 
 function clearConnection(token) {
   clearInterval(intervalStore[token]);
+  if (connectionCheckStore[token]) {
+    clearInterval(connectionCheckStore[token]);
+    delete connectionCheckStore[token];
+  }
 
   delete sock[token];
   delete qrcode[token];
