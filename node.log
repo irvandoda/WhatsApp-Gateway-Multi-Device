@@ -1,0 +1,297 @@
+[dotenv@17.2.3] injecting env (47) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[server][ssl] Using certs from ENV_PATHS: key=/www/wwwroot/whatsappgateway.eu.org/privkey.pem cert=/www/wwwroot/whatsappgateway.eu.org/fullchain.pem
+[server] HTTPS enabled via ENV_PATHS
+Server running and listening on port: 3100
+You re using whatsapp gateway M Pedia v8.x.x - Contact admin if any trouble : 6292298859671
+using WA v2.3000.1027934701, isLatest: true
+⚠️ The printQRInTerminal option has been deprecated. You will no longer receive QR codes in the terminal automatically. Please listen to the connection.update event yourself and handle the QR your way. You can remove this message by removing this opttion. This message will be removed in a future version.
+connection {
+  connection: 'connecting',
+  receivedPendingNotifications: false,
+  qr: undefined
+}
+[32mINFO[39m [2025-11-17 10:34:16.918 +0100]: [36mconnected to WA[39m
+    [35mbrowser[39m: [
+      "Windows",
+      "Chrome",
+      "5.15.0-160-generic"
+    ]
+    [35mhelloMsg[39m: {
+      "clientHello": {
+        "ephemeral": "MAV4O81oD1amM4TQAT4gLN6qzMc7iPsbykzLi50c9WM="
+      }
+    }
+[32mINFO[39m [2025-11-17 10:34:17.143 +0100]: [36mlogging in...[39m
+    [35mnode[39m: {
+      "username": "6285747476308",
+      "passive": false,
+      "userAgent": {
+        "platform": "WEB",
+        "appVersion": {
+          "primary": 2,
+          "secondary": 3000,
+          "tertiary": 1027934701
+        },
+        "mcc": "000",
+        "mnc": "000",
+        "osVersion": "0.1",
+        "device": "Desktop",
+        "osBuildNumber": "0.1",
+        "releaseChannel": "RELEASE",
+        "localeLanguageIso6391": "en",
+        "localeCountryIso31661Alpha2": "US"
+      },
+      "webInfo": {
+        "webSubPlatform": "WEB_BROWSER"
+      },
+      "connectType": "WIFI_UNKNOWN",
+      "connectReason": "USER_ACTIVATED",
+      "device": 15,
+      "pull": true
+    }
+[32mINFO[39m [2025-11-17 10:34:17.822 +0100]: [36mclean dirty bits account_sync[39m
+    [35mfromTimestamp[39m: 1763371246
+[32mINFO[39m [2025-11-17 10:34:17.997 +0100]: [36moffline preview received[39m
+[32mINFO[39m [2025-11-17 10:34:18.295 +0100]: [36m11 pre-keys found on server[39m
+[32mINFO[39m [2025-11-17 10:34:18.306 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "6aQuzeYhDNMqCvBGkv1QlpGqQq5jkPZp7wgyn5y3q+o=",
+      "fileLength": "1622677",
+      "mediaKey": "cWEgZ5QRd4v7sEYS+qMHdYBMugy5PuOImBXzDm2G8Qo=",
+      "fileEncSha256": "TiG3uQH01nOllM2bUPS25qqjQhY+L9JNIvlSPpClmKA=",
+      "directPath": "/v/t62.31111-24/30585646_1363499208644651_3534850096513536107_n.enc?ccb=11-4&oh=01_Q5Aa3AFWllxwR2msaAp1X2E5mXMpXZzdNZafJQ_v59Jvd4TEzQ&oe=694271A0&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 3,
+      "progress": 19,
+      "oldestMsgInChunkTimestampSec": "1762143569",
+      "encHandle": "AQK6MxYgUk3PfP06dMqGbYMxW5HmP-B8PRhjPSztgp5JZCIb0XoLzVIPY1qk-U2RjR1Pi0c7ixEzMpvZrn4fEAa-UXVcBZhh_gYWGrkOjnkCv5bwwhfxR00DHvPaA8K60FE"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5C16BE8FD3F76F8C0840AE1F9DF28B5"
+    [35misLatest[39m: true
+connection { isOnline: true }
+connection { connection: 'open' }
+[32mINFO[39m [2025-11-17 10:34:21.275 +0100]: [36mopened connection to WA[39m
+[32mINFO[39m [2025-11-17 10:34:21.309 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "BDjJJUF2dkxs0fjhyFUG+mED8N+mRwMpNsIK4bIih0M=",
+      "fileLength": "1717161",
+      "mediaKey": "moJlcxQX2ruvNBnKkRmcRlm/QJpcajI+JeLQ/g3Mcv8=",
+      "fileEncSha256": "mHlOjZEsiX3K2MxUKObI6e/fXjjG9hbB9DL1GGUA7jg=",
+      "directPath": "/v/t62.31111-24/31159548_4263139417338558_4911002913680900392_n.enc?ccb=11-4&oh=01_Q5Aa3AHV3wJA2O7wRRoCjtzFCRlcoYvMPWFWdAgPc5mVXs40SA&oe=69425CB5&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 4,
+      "progress": 25,
+      "oldestMsgInChunkTimestampSec": "1761646686",
+      "encHandle": "AQKPQ7p5AlWwB9dBxvDeliC6ixIJM7Uw7NaFhTVVEl3e548I4x3WCt_OhCHYyUH0MaEqREfURL-9mNA5IbWbB2XbGDUo3eV6C8wrSGS5atDp63PQVLsBJp3nKU0Q8EO3IZY"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5629A42BBF6CB5C849416FB7FF8C160"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.311 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "MIG3DqOClg3vUH2sjCtvt3WT4S+Jz/1FkCJpf17I5wM=",
+      "fileLength": "1766619",
+      "mediaKey": "IiHTC9KMMW3glMEOaCOhGdqhl5U/KuYwkIjyUpum5VE=",
+      "fileEncSha256": "Nh0vr2PCbKGOU/5FyNTt8fX788bnZHyoR77PVF111CM=",
+      "directPath": "/v/t62.31111-24/35380994_726780053772289_6256098616473032502_n.enc?ccb=11-4&oh=01_Q5Aa3AGBCXD2PCPULrXsokEs6Ee5CI1ldYtY97eeSZk8jKH_rw&oe=69425FC9&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 5,
+      "progress": 32,
+      "oldestMsgInChunkTimestampSec": "1761220979",
+      "encHandle": "AQJ0nFPocR42AWrpI1AtBpOszanWEllpZwPq1c0AG5MJS5bTUBCHRSn5KsUgTVHh2ITztz6Th5gyo0-VgqcqpS5KGjQBD1nwJ7gtgiwddqXXFpyLTO292W7yIQwk5XT4_O4"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5AEBA7A712D344A016A33A65244A809"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.356 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "we50UOHzUvO4MuLxUcOpwwa+A1wxBYYR0Xx/GyV8mFw=",
+      "fileLength": "1384413",
+      "mediaKey": "GbGXB2hJTHyXqeJodrXS0kCO0b1UjIwxGUPwB1sbeWE=",
+      "fileEncSha256": "438yz3L3QKunuUCaG/npISlOKghLNeZzqjAqmApQD28=",
+      "directPath": "/v/t62.31111-24/574198459_713055285183437_7766081814482906848_n.enc?ccb=11-4&oh=01_Q5Aa3AHmEQDlI5m8h6ToDk8QFlVFbOQ39-Ibur3xjXhJpS2P9A&oe=6942680D&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 6,
+      "progress": 38,
+      "oldestMsgInChunkTimestampSec": "1760963788",
+      "encHandle": "AQLEY7K1WnpbPwLQ_PmkY23xyYGT6jiXghdoDzCcqCXRHqPLtEkeZixVCgJc1_FYXNOl-Aa6OxMAaZ3N0jhVi0iB9FNPe45GEXlpw8wqsw1A_yTUby-Zf3zEfBFNwEjztuE"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5D5C94E41080BEE4CB62C5608BD4F18"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.373 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "XGYoQVir2m83IdKSlAMXHi+9Sj354+o2zr+jqyW/okI=",
+      "fileLength": "1730698",
+      "mediaKey": "JRBykXi4tnLrqMN7Ycac5X383sXveuV4Ef0H/2tsiV8=",
+      "fileEncSha256": "j5+npnGfTpzeA35yhxz+f5ZUgwBVRbTViyRujKEXaZk=",
+      "directPath": "/v/t62.31111-24/28778679_25140989272187451_1337001454615967669_n.enc?ccb=11-4&oh=01_Q5Aa3AFm8UG1HC-6StTAeMIqxUYzbWHUCe1970jNWXqDRAK6ng&oe=69424A9C&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 7,
+      "progress": 45,
+      "oldestMsgInChunkTimestampSec": "1760422145",
+      "encHandle": "AQJ93RJ2-UeRwhPV09jtiUx3U7McxqULv7UJH4MtmihTnL3Hw18HEoElWwZKcgV4LIsAjVDwlCkWl3KIhd_YPRjiVEkbYipegPknh6YeiaznRxgI0RZ3Hf0J0Rz8yIABznU"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5A07A308B8B5FDDC17038FF27F5E42E"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.375 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "hyJ/VtU2XOlVtmF1PKRwoojITBaNhzltt24BKP03PdM=",
+      "fileLength": "1927326",
+      "mediaKey": "fcKpmh/r1orfpP6crfYkx4J1HcnpeXRdgIbgj/ZvU7k=",
+      "fileEncSha256": "JGKMauKpJp7pLmURQ3yJ928mVnNPaCRdGxGyLvIZkq8=",
+      "directPath": "/v/t62.31111-24/40753143_853263384056888_7629002138682864310_n.enc?ccb=11-4&oh=01_Q5Aa3AGUAnEfHgSYOfP4YaG3Qcfbb06KrhMgl3wEdMZNYVNeYw&oe=69425D09&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 8,
+      "progress": 51,
+      "oldestMsgInChunkTimestampSec": "1759839540",
+      "encHandle": "AQKvetkljEKxyjXaO9fSCC1dMfxJGv73Oez8nUeyEAR8NaRMXSGLuozGyLISTDR14wix0TBwEqYxt4g1cbflyoyLJs7f4E4xD26hoXLOI09VHFbIzKi_muIiVNPua0YoiHI"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A51E600FE75F5B9B657746B097DF1925"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.392 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "qoBZp3VBbPpx46AgdQnw3AYwPv02+ItI7E8l7vsbZrg=",
+      "fileLength": "1900471",
+      "mediaKey": "pwuG/kNxtf0Y2qewF8640/Ud/chBtBk4ulQ5CfW3FtU=",
+      "fileEncSha256": "YR/45M97whAXRZ3H4BTmpk34alhAOaFlZAgK9p/hkhs=",
+      "directPath": "/v/t62.31111-24/55973257_688828500961764_7980873419417418314_n.enc?ccb=11-4&oh=01_Q5Aa3AFTfWSZJqot0QwJfuB0DySoSdudvou_-psn4yWnMWK-KQ&oe=69424625&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 9,
+      "progress": 57,
+      "oldestMsgInChunkTimestampSec": "1759198865",
+      "encHandle": "AQKEuyvLwJxjEpG-PHROpSibJnzRSOuYVBarnQY1u2nERcCrkTdb9EIUyBZRssyWJi2TEDPCMcPNjLF4jwExMn5sUUsx5n7cOfp9iCz6_DSSnpzILeD-7IbPRL1N01-opHg"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A51C982D064584FCA5BA2F9C30B9763A"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.423 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "I41AYqb2GRdmFLqGeyq1EnBD4Wt608NiEeU4tMYeYg8=",
+      "fileLength": "1836887",
+      "mediaKey": "uxMlr3HRb/dSPJfqv4CyKcn6B0U/5yBwvbchU/uKJWw=",
+      "fileEncSha256": "YsRvYVWXn/nIcGiCe7TyYqTHqB/TmEZYEdFShkZFaQg=",
+      "directPath": "/v/t62.31111-24/574191233_1221761026715501_1177278085314969581_n.enc?ccb=11-4&oh=01_Q5Aa3AHr-HwOleKPEoDoxApbSuu14vvUVJBn3yVPW-jKqCH_jw&oe=6942466F&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 10,
+      "progress": 64,
+      "oldestMsgInChunkTimestampSec": "1758595800",
+      "encHandle": "AQKKlobD6Z3WdneIr9qtpkXyaxmYwxpIGvrcF9DZY7R1y-T4-yY1H91OA19uq1S12Qk5B0DlwOnACYYWlY8T5n8e3uX382DU3-do4gfyIUWIbBj178kBD4lvw3-9gd8wQBs"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A565169FA2BD6AA95F695A969CEFB564"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.427 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "hx6cBseqTLPlAEE3ulkWS3rYypINq3CyJsz8p11O2ak=",
+      "fileLength": "1733416",
+      "mediaKey": "xjpv6Fl5g0TCsgy+CIqNfr6YHoN3T5Zh5bs7rAErvRU=",
+      "fileEncSha256": "9lP2oeP0LKmIk4o8qR4ay2599Nv9F5nAq/5EwgVGe3g=",
+      "directPath": "/v/t62.31111-24/582956096_1145090121115138_530525028467364714_n.enc?ccb=11-4&oh=01_Q5Aa3AHzOmqxG-_orm1mnf_n_R7hAusSYCCLgZK-kNdzQ-XPIQ&oe=69424FEE&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 11,
+      "progress": 70,
+      "oldestMsgInChunkTimestampSec": "1758042778",
+      "encHandle": "AQL9ssQJkuhHZMEv7A8Ga8T_8omxqn1n0VDF0qepyvkX5Nmik9I8UJQRcUlG375lCgVWb02OVsjVq3OIA3lUA2C95wk2OzFtUDgs3gbNSOayKmAQ8_BZoto4zKdSPwmuIxM"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A58B93CF2D1DBCDB825B86510E2AC8A9"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.438 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "OchPV4nsUH8j9mqGUqFWM/VNDrPRvjK1p7ihFSdCZ1E=",
+      "fileLength": "1693619",
+      "mediaKey": "7qXMKEPPS++6V+la//+eHmzVghpSAO9AI1pglBc6+7w=",
+      "fileEncSha256": "PQCAQNmRdFwL1H/UF3/RIc8uNuNsCvOlYknNSftbPes=",
+      "directPath": "/v/t62.31111-24/56260043_1364741865059447_8434322329198925539_n.enc?ccb=11-4&oh=01_Q5Aa3AGCc01SLH8FQnx0oGIr2SYfZddVrIe80w5HRfDtLZ6e7Q&oe=694264DC&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 12,
+      "progress": 77,
+      "oldestMsgInChunkTimestampSec": "1757557392",
+      "encHandle": "AQKOYhw5dtrzl0ImuYL4lB3r__oBoJNsZwQkf6EMzv3yPnRXxDuGEtsDG8id_Qk0kpmEOkueAna2e_aPYrvMiViR59DaY9IY9JTWdU2folztU3xO0gKfW9XR8p31t06Dq0s"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A515F2BF6C36B801C46EB1760D72F939"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.440 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "1x1YkWPmb6hACqmrQwc0eWuY5gvVjsEoXeYs6OVJXP0=",
+      "fileLength": "1749605",
+      "mediaKey": "VdzaAD8aQoGWdKJrF/oJKUABAFGsujT78q/1DSnVSOs=",
+      "fileEncSha256": "yWn/vM0cnCpWEbBwiW8PyzjmyrGSHrjxpFxLbicsW9c=",
+      "directPath": "/v/t62.31111-24/21430882_808551748686194_8680508894066476871_n.enc?ccb=11-4&oh=01_Q5Aa3AHWtNsRaSdrzn3k4aVSkD24K7Zr66LrF7Gf2GY1w7bdVA&oe=69425195&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 13,
+      "progress": 83,
+      "oldestMsgInChunkTimestampSec": "1757035984",
+      "encHandle": "AQK4sDvs7xKprknGcKslOssiVxT5fuj21pTxzCUVx51G_QR9tyLdjg34_5_JC2TsMb2w9p_i4V0QAN8FomlaMeOAA5XK76VXE9U1oGmBVG1n56YaIT9cUDtkt-Ztpdn1u8w"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A56A3F2E22CAFDDE49B14A9EBB9FC081"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.463 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "WlOhgV4NDg0XqjnQUSdYWsELn5ln5SNIHf+Ut78qNQE=",
+      "fileLength": "1527711",
+      "mediaKey": "f0vBkly/tmmXP2tdDT1ifAj+loTB8PzbVUFn0B63BWY=",
+      "fileEncSha256": "0VZrqrrm58d+IJVJ1jT90hKKD0dCzoCX+kI22HDZzJw=",
+      "directPath": "/v/t62.31111-24/577621229_1488837072407417_4620280240051026753_n.enc?ccb=11-4&oh=01_Q5Aa3AEcW2sm9G59g6qi8GZ4VpYXBbvsTmWk2kVDpc6Vh7wGQQ&oe=6942733D&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 14,
+      "progress": 90,
+      "oldestMsgInChunkTimestampSec": "1756572458",
+      "encHandle": "AQKzRIs7rSFLNaZv0iGzsfRsSVbQoAxuWuncrQaD3x2sVQ-Rv55pwA-5Pu_ZAorHvQLJa_kn3dbU4nPlbP9nNX-UPkuNOh9G-2Qo5duwV9MvNvkiIX18G3rOh52DJOUzaDI"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5384A8A1AA55B17273ED6CC71E1C566"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.479 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "UuofcprVol20P9CLAYfmdIcWmK4SNcEOZ+Jd8xzNYK4=",
+      "fileLength": "1594755",
+      "mediaKey": "V6wxhDp8xoH9vNvUe/HNTD5IJlTRCuP++Epi29vy+nk=",
+      "fileEncSha256": "ag1iCsBKJx27v9zRxIVjhhFZBtvoKReEjAApK1DtJCs=",
+      "directPath": "/v/t62.31111-24/585564060_2321060578326611_6799412025423467679_n.enc?ccb=11-4&oh=01_Q5Aa3AHkSptr7ckhcaGlHbUiALuXXJunvKFM3wHq9Y1ojAgQBQ&oe=694241F2&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 15,
+      "progress": 96,
+      "oldestMsgInChunkTimestampSec": "1756078476",
+      "encHandle": "AQIq17JSdnOLRsOJ0wUJAfhOSKhIU9z08ppJaF9vmc_z_nhPzARILq24YTiEcd-kgVpR2faUohz-1SnURambcuROboUO8que39UHxQqTeJXRq8VqybjSGBRWArcv4LzpKLQ"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A5CC72B7C295D1B01F380868B1F19F9B"
+    [35misLatest[39m: true
+[32mINFO[39m [2025-11-17 10:34:21.481 +0100]: [36mgot history notification[39m
+    [35mhistNotification[39m: {
+      "fileSha256": "ZoJRCk3qc25U/XZYypW80l6valAf6ziKo8wBpkIIT8U=",
+      "fileLength": "852234",
+      "mediaKey": "rkMSRzhLU0GJWZylBBbNag2tR5JHbcHPQuedPwcviII=",
+      "fileEncSha256": "LbWmsm49XP5lnTSScyrGHV5LS8CRmaiKDViku+zuDVw=",
+      "directPath": "/v/t62.31111-24/584449256_721382247673225_7563069592667087273_n.enc?ccb=11-4&oh=01_Q5Aa3AE8YxSjNhN88JknAlqtKz0AGkahuRayUTrRBRW4rRpZmw&oe=6942661A&_nc_sid=5e03e0",
+      "syncType": "RECENT",
+      "chunkOrder": 16,
+      "progress": 100,
+      "oldestMsgInChunkTimestampSec": "1755762850",
+      "encHandle": "AQLs4pVBExoUc9Uf8lmiAXaQ6jMi4-VgQn5STR3xPCW_eAF61Pa5nVeiRbFHmmuSFDiQCCrzwXsslWmIkg-e8GO3S_1M0s7FG6qgPJ0WJAuI23v9tabkQ-jVC9D6UQWY69E"
+    }
+    [35mprocess[39m: false
+    [35mid[39m: "A589D98196D65B757DFF1BE5F036C5B7"
+    [35misLatest[39m: true
+connection { isOnline: false }
+connection { receivedPendingNotifications: true }
+[32mINFO[39m [2025-11-17 10:34:22.352 +0100]: [36mhandled 104 offline messages/notifications[39m
+[32mINFO[39m [2025-11-17 10:34:22.353 +0100]: [36mConnection is now AwaitingInitialSync, buffering events[39m
+[32mINFO[39m [2025-11-17 10:34:22.353 +0100]: [36mHistory sync is disabled by config, not waiting for notification. Transitioning to Online.[39m
+ar p true
+otw send
+ar p true
+otw send
+connection { isOnline: false }
+connection { isOnline: false }
+connection { isOnline: false }
+connection { isOnline: false }
+connection { isOnline: false }

@@ -1,148 +1,147 @@
-<x-layout-dashboard title="Auto Replies">
+<x-layout-dashboard title="Manage Users">
 
 
 
-    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
-    <!--breadcrumb-->
-    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Admin</div>
-        <div class="ps-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 p-0">
-                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Users</li>
-                </ol>
-            </nav>
-        </div>
-
-    </div>
-    <!--end breadcrumb-->
-    @if (session()->has('alert'))
-        <x-alert>
-            @slot('type', session('alert')['type'])
-            @slot('msg', session('alert')['msg'])
-        </x-alert>
-    @endif
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <div class="space-y-8">
+        @if (session()->has('alert'))
+            <div
+                class="rounded-3xl border border-{{ session('alert')['type'] === 'success' ? 'emerald' : 'rose' }}-500/50 bg-{{ session('alert')['type'] === 'success' ? 'emerald' : 'rose' }}-500/10 px-6 py-4 text-sm text-white shadow-glow">
+                {{ session('alert')['msg'] }}
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="rounded-3xl border border-rose-500/40 bg-rose-500/10 px-6 py-4 text-sm text-rose-100">
+                <p class="font-semibold">{{ __('Please resolve the following:') }}</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-rose-200">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
 
 
 
-    <div class="row mt-4">
-        <div class="col">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between">
-                    <h5 class="card-title">Users</h5>
-
-
-                    <button type="button" class="btn btn-primary" onclick="addUser()">
-                        Add User
-                    </button>
+        <section class="rounded-3xl border border-slate-800/60 bg-slate-950/70 p-6 shadow-glow">
+            <div class="flex flex-wrap items-center gap-4">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.35em] text-slate-500">{{ __('Admin') }}</p>
+                    <p class="text-lg font-semibold text-white">{{ __('Users') }}</p>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive mt-3">
-                        <table class="table align-middle">
-                            <thead class="table-secondary">
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Total Device</th>
-                                    <th>Limit Device</th>
-                                    <th>Subscription</th>
-                                    <th>Expired subscription</th>
-                                    <th>Action</th>
-                                    {{-- <th class="d-flex justify-content-center">Action</th> --}}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($users as $user)
-                                    <tr>
-                                        <td>{{ $user->username }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>{{ $user->total_device }}</td>
-                                        <td>{{ $user->limit_device }}</td>
-                                        <td>
-                                            @php
-                                                if ($user->is_expired_subscription) {
-                                                    $badge = 'danger';
-                                                } else {
-                                                    $badge = 'success';
-                                                }
-                                            @endphp
-                                            <span
-                                                class="badge bg-{{ $badge }}">{{ $user->active_subscription }}</span>
-                                        </td>
-
-                                        <td>
-                                            @php
-                                                if ($user->is_expired_subscription) {
-                                                    echo '<span class="badge bg-danger">-</span>';
-                                                } else {
-                                                    if ($user->active_subscription == 'active') {
-                                                        echo $user->subscription_expired;
-                                                    } else {
-                                                        echo '<span class="badge bg-danger">-</span>';
-                                                    }
-                                                }
-                                            @endphp
-                                        </td>
-                                        <td>
-                                            <div class="table-actions d-flex align-items-center gap-3 fs-6">
-                                                <a onclick="editUser({{ $user->id }})" href="javascript:;"
-                                                    class="text-primary" data-bs-toggle="tooltip"
-                                                    data-bs-placement="bottom" title="Edit user"><i
-                                                        class="bx bxs-edit"></i></a>
-
-                                                <form action="{{ route('user.delete', $user->id) }}" method="POST"
-                                                    onsubmit="return confirm('Are you sure will delete this user ? all data user also will deleted')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <input type="hidden" name="id" value="{{ $user->id }}">
-                                                    <button type="submit" name="delete"
-                                                        class="btn text-sm btn-sm text-danger"><i
-                                                            class="bi bi-trash-fill"></i></button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-
-                            <tfoot></tfoot>
-                        </table>
-                    </div>
-                      <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                            <li class="page-item {{ $users->currentPage() == 1 ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $users->previousPageUrl() }}">Previous</a>
-                            </li>
-
-                            @for ($i = 1; $i <= $users->lastPage(); $i++)
-                                <li class="page-item {{ $users->currentPage() == $i ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
-                                </li>
-                            @endfor
-
-                            <li
-                                class="page-item {{ $users->currentPage() == $users->lastPage() ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $users->nextPageUrl() }}">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
+                <div class="ml-auto">
+                    <button type="button" onclick="addUser()"
+                        class="inline-flex items-center gap-2 rounded-2xl border border-brand-neon/40 bg-brand-neon/10 px-4 py-2 text-sm font-semibold text-brand-neon transition hover:bg-brand-neon/20">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 5v14M5 12h14" stroke-width="1.5" stroke-linecap="round" />
+                        </svg>
+                        {{ __('Add User') }}
+                    </button>
                 </div>
             </div>
 
-        </div>
+            <div class="mt-6 overflow-x-auto rounded-3xl border border-slate-800/70">
+                <table class="min-w-full divide-y divide-slate-800/80 text-sm">
+                    <thead class="bg-slate-900/60 text-xs uppercase tracking-[0.25em] text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3 text-left">{{ __('Username') }}</th>
+                            <th class="px-4 py-3 text-left">{{ __('Email') }}</th>
+                            <th class="px-4 py-3 text-left">{{ __('Total Device') }}</th>
+                            <th class="px-4 py-3 text-left">{{ __('Limit Device') }}</th>
+                            <th class="px-4 py-3 text-left">{{ __('Subscription') }}</th>
+                            <th class="px-4 py-3 text-left">{{ __('Expired subscription') }}</th>
+                            <th class="px-4 py-3 text-left">{{ __('Action') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        @foreach ($users as $user)
+                            <tr class="bg-slate-900/30">
+                                <td class="px-4 py-4">
+                                    <div class="text-white">{{ $user->username }}</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-slate-300">{{ $user->email }}</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-slate-300">{{ $user->total_device }}</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-slate-300">{{ $user->limit_device }}</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    @php
+                                        $badgeColor = $user->is_expired_subscription ? 'rose' : 'emerald';
+                                    @endphp
+                                    <span
+                                        class="inline-flex rounded-full border px-3 py-1 text-xs uppercase tracking-[0.3em] text-{{ $badgeColor }}-300 bg-{{ $badgeColor }}-500/10 border-{{ $badgeColor }}-500/40">
+                                        {{ $user->active_subscription }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    @php
+                                        if ($user->is_expired_subscription) {
+                                            echo '<span class="inline-flex rounded-full border px-3 py-1 text-xs uppercase tracking-[0.3em] text-rose-300 bg-rose-500/10 border-rose-500/40">-</span>';
+                                        } else {
+                                            if ($user->active_subscription == 'active') {
+                                                echo '<span class="text-slate-300">'.e($user->subscription_expired).'</span>';
+                                            } else {
+                                                echo '<span class="inline-flex rounded-full border px-3 py-1 text-xs uppercase tracking-[0.3em] text-rose-300 bg-rose-500/10 border-rose-500/40">-</span>';
+                                            }
+                                        }
+                                    @endphp
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <a onclick="editUser({{ $user->id }})" href="javascript:;"
+                                           class="rounded-2xl border border-slate-800/70 px-3 py-2 text-xs text-slate-300 hover:border-brand-neon/40 hover:text-white">
+                                            {{ __('Edit') }}
+                                        </a>
+                                        <form action="{{ route('user.delete', $user->id) }}" method="POST"
+                                              onsubmit="return confirm('Are you sure will delete this user ? all data user also will deleted')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <input type="hidden" name="id" value="{{ $user->id }}">
+                                            <button type="submit" name="delete"
+                                                class="rounded-2xl border border-rose-500/50 px-3 py-2 text-xs text-rose-300 hover:bg-rose-500/10">
+                                                {{ __('Delete') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-
+            @if ($users->hasPages())
+                <nav class="mt-6 flex justify-center" aria-label="Page navigation">
+                    <ul class="inline-flex items-center gap-2 rounded-2xl border border-slate-800/60 bg-slate-900/60 px-3 py-2 text-xs">
+                        <li>
+                            <a href="{{ $users->previousPageUrl() }}"
+                               class="{{ $users->onFirstPage() ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:text-white' }}">
+                                {{ __('Previous') }}
+                            </a>
+                        </li>
+                        @for ($i = 1; $i <= $users->lastPage(); $i++)
+                            <li>
+                                <a href="{{ $users->url($i) }}"
+                                   class="{{ $users->currentPage() == $i ? 'rounded-xl bg-brand-neon/15 px-3 py-1 text-brand-neon' : 'px-3 py-1 text-slate-400 hover:text-white' }}">
+                                    {{ $i }}
+                                </a>
+                            </li>
+                        @endfor
+                        <li>
+                            <a href="{{ $users->nextPageUrl() }}"
+                               class="{{ $users->currentPage() == $users->lastPage() ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:text-white' }}">
+                                {{ __('Next') }}
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            @endif
+        </section>
+    </div>
         <!-- Modal -->
         <div class="modal fade" id="modalUser" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">

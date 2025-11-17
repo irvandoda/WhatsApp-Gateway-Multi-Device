@@ -43,6 +43,26 @@ class SettingController extends Controller
         }
         $port = env('PORT_NODE');
         $isConnected = $this->checkPort($host, $port);
+        // Auto-heal WA_URL_SERVER if TLS CN mismatch and we can detect Node's cert CN
+        try {
+            if (!$isConnected || (stripos($this->checkServerProtocol(env('WA_URL_SERVER')), 'mismatch') !== false)) {
+                $cn = $this->detectNodeCertificateCN($host, (int) $port);
+                if ($cn && $cn !== $host) {
+                    $newUrl = 'https://' . $cn . ':' . $port;
+                    setEnv('WA_URL_SERVER', $newUrl);
+                    try {
+                        \Artisan::call('config:clear');
+                        \Artisan::call('cache:clear');
+                    } catch (\Throwable $th) {
+                    }
+                    // refresh values for view
+                    $host = $cn;
+                    $isConnected = $this->checkPort($host, $port);
+                }
+            }
+        } catch (\Throwable $th) {
+            // ignore auto-heal errors
+        }
         $protocolMatch = $this->checkServerProtocol(env('WA_URL_SERVER'));
         return view('pages.admin.settings', compact('host', 'port', 'isConnected', 'protocolMatch'));
     }
@@ -51,8 +71,17 @@ class SettingController extends Controller
     {
         $typeServer = env('TYPE_SERVER');
         if ($typeServer == 'hosting') {
-            // ping to appurl/backend-send-message to check if server is running or no
-            $url = env('APP_URL') . '/backend-send-message';
+            // ping to appurl/backend-send-message to check if server is running or not
+			$appUrl = rtrim((string) env('APP_URL'), '/');
+			// Normalize potential malformed schemes like "httpsss" → "https"
+			if (preg_match('/^https+/i', $appUrl)) {
+				$appUrl = preg_replace('/^https+/i', 'https', $appUrl, 1);
+			}
+			// Ensure we have a valid http/https scheme (default to https)
+			if (!preg_match('/^https?:\/\//i', $appUrl)) {
+				$appUrl = 'https://' . ltrim($appUrl, '/');
+			}
+            $url = $appUrl . '/backend-send-message';
             // if str include like "can not get" then server is not running
             $response = Http::get($url);
             if (strpos($response->body(), 'Cannot GET') !== false) {
@@ -61,13 +90,30 @@ class SettingController extends Controller
                 return false;
             }
         }
+        // Try direct TCP to provided host
         $connection = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (is_resource($connection)) {
             fclose($connection);
             return true;
-        } else {
-            return false;
         }
+        // If failed and host appears to be this server, try loopback fallbacks
+        try {
+            $publicIp = gethostbyname($host);
+            $localIps = [$publicIp];
+            // Add common loopbacks
+            $localIps[] = '127.0.0.1';
+            // Attempt each candidate
+            foreach (array_unique($localIps) as $ip) {
+                $conn = @fsockopen($ip, $port, $errno, $errstr, $timeout);
+                if (is_resource($conn)) {
+                    fclose($conn);
+                    return true;
+                }
+            }
+        } catch (\Throwable $th) {
+            // ignore
+        }
+        return false;
     }
     public function checkServerProtocol($url)
     {
@@ -97,6 +143,56 @@ class SettingController extends Controller
             'port' => $port,
         ];
     }
+    /**
+     * Attempt to read CN from TLS certificate served by Node worker on given host:port.
+     * Returns CN string or null on failure.
+     */
+    private function detectNodeCertificateCN($host, int $port)
+    {
+        $contextOptions = [
+            'ssl' => [
+                'capture_peer_cert' => true,
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true,
+            ],
+        ];
+        $context = stream_context_create($contextOptions);
+        $client = @stream_socket_client(
+            "ssl://{$host}:{$port}",
+            $errno,
+            $errstr,
+            3,
+            STREAM_CLIENT_CONNECT,
+            $context
+        );
+        if (!$client) {
+            // try plain TCP first, maybe HTTPS is not enabled
+            return null;
+        }
+        $params = stream_context_get_params($client);
+        if (!isset($params['options']['ssl']['peer_certificate'])) {
+            return null;
+        }
+        $cert = openssl_x509_parse($params['options']['ssl']['peer_certificate']);
+        if (!$cert) {
+            return null;
+        }
+        // subject CN
+        $cn = $cert['subject']['CN'] ?? null;
+        if ($cn) {
+            return $cn;
+        }
+        // alt names
+        if (!empty($cert['extensions']['subjectAltName'])) {
+            $alt = $cert['extensions']['subjectAltName'];
+            // DNS:example.com, DNS:*.example.com
+            if (preg_match('/DNS:([^,]+)/', $alt, $m)) {
+                return $m[1];
+            }
+        }
+        return null;
+    }
     public function setServer(Request $request)
     {
         $request->validate([
@@ -122,9 +218,11 @@ class SettingController extends Controller
             // Same-origin (reverse proxy) - rely on app url
             $urlnode = url('/');
         } else {
-            // localhost mode for development/VPS direct
-            $scheme = 'http';
-            $urlnode = $scheme . '://localhost:' . $port;
+            // localhost mode (development/VPS) — don't force "localhost", use actual host to avoid client-side TLS/host issues
+            $scheme = $request->isSecure() ? 'https' : 'http';
+            $hostFromAppUrl = parse_url((string) env('APP_URL'), PHP_URL_HOST);
+            $host = $hostFromAppUrl ?: $request->getHost() ?: 'localhost';
+            $urlnode = $scheme . '://' . $host . ':' . $port;
         }
 
         // Persist to .env
@@ -399,38 +497,79 @@ class SettingController extends Controller
             File::put(base_path('cert.pem'), $cert->getCertificate());
             File::put(base_path('key.pem'), $cert->getKey());
             File::put(base_path('csr.pem'), $cert->getCsr());
+            // Also expose common filenames expected by proxies/servers
+            // - privkey.pem: private key
+            // - fullchain.pem: end-entity cert (plus chain if available)
+            // Some ACME libs return only end-entity cert; if so, use it as fullchain
+            try {
+                File::put(base_path('privkey.pem'), $cert->getKey());
+            } catch (\Throwable $th) {
+                // fallback copy if needed
+                @copy(base_path('key.pem'), base_path('privkey.pem'));
+            }
+            try {
+                $fullchain = method_exists($cert, 'getFullChain') && $cert->getFullChain()
+                    ? $cert->getFullChain()
+                    : $cert->getCertificate();
+                File::put(base_path('fullchain.pem'), $fullchain);
+            } catch (\Throwable $th) {
+                // fallback copy if needed
+                @copy(base_path('cert.pem'), base_path('fullchain.pem'));
+            }
+            // Hint server.js to use these paths explicitly
+            setEnv('SSL_KEY_PATH', base_path('privkey.pem'));
+            setEnv('SSL_CERT_PATH', base_path('fullchain.pem'));
 
             if (File::exists(base_path('cert.pem'))) {
                 $webPhpPath = base_path('routes/web.php');
-                $webPhpContent = File::get($webPhpPath);
                 $serverJsPath = base_path('server.js');
-                $serverJsContent = File::get($serverJsPath);
+                $canWriteWeb = is_writable($webPhpPath);
+                $canWriteServer = is_writable($serverJsPath);
 
-                if (strpos($webPhpContent, "URL::forceScheme") === false) {
-                    $webPhpContent = str_replace("?>", "URL::forceScheme('https');\n?>", $webPhpContent);
-                    File::put($webPhpPath, $webPhpContent);
+                // Try to inject URL::forceScheme('https') into routes only if writable
+                try {
+                    if ($canWriteWeb) {
+                        $webPhpContent = File::get($webPhpPath);
+                        if (strpos($webPhpContent, "URL::forceScheme") === false) {
+                            $webPhpContent = str_replace("?>", "URL::forceScheme('https');\n?>", $webPhpContent);
+                            File::put($webPhpPath, $webPhpContent);
+                        }
+                    } else {
+                        // Fallback: rely on APP_URL=https and a runtime flag
+                        setEnv('FORCE_HTTPS', 'true');
+                    }
+                } catch (\Throwable $e) {
+                    // Do not fail the whole operation for a write issue
+                    \Log::warning('Failed updating routes/web.php for https forcing: '.$e->getMessage());
+                    setEnv('FORCE_HTTPS', 'true');
                 }
 
-                if ($this->getServerProtocol() === "https") {
-                    $pattern = '/const serverOptions = \{[\s\S]*?\}[\s\S]*?const server = https\.createServer\(serverOptions, app\);/m';
-                    preg_match($pattern, $serverJsContent, $matches);
-                    $serverOptionsContent = isset($matches[0]) ? trim($matches[0]) : '';
-                    File::put(base_path('server.js.bak'), $serverOptionsContent);
-                    $serverOptionsContent = str_replace($serverOptionsContent, "const serverOptions = {\n  key: fs.readFileSync('key.pem'),\n  cert: fs.readFileSync('cert.pem')\n}\n\nconst express = require(\"express\");\nconst app = express();\nconst https = require(\"https\");\nconst server = https.createServer(serverOptions, app);", $serverJsContent);
-                    File::put($serverJsPath, $serverOptionsContent);
-                } else {
-                    $pattern = '/const express = [\s\S]*?const server = http\.createServer\(app\);/m';
-                    preg_match($pattern, $serverJsContent, $matches);
-                    $serverOptionsContent = isset($matches[0]) ? trim($matches[0]) : '';
-                    File::put(base_path('routes/web.php.bak'), $serverOptionsContent);
-                    $serverOptionsContent = str_replace($serverOptionsContent, "const serverOptions = {\n  key: fs.readFileSync('key.pem'),\n  cert: fs.readFileSync('cert.pem')\n}\n\nconst express = require(\"express\");\nconst app = express();\nconst https = require(\"https\");\nconst server = https.createServer(serverOptions, app);", $serverJsContent);
-                    File::put($serverJsPath, $serverOptionsContent);
+                // Try to hint server.js to use generated certs only if writable
+                try {
+                    if ($canWriteServer) {
+                        $serverJsContent = File::get($serverJsPath);
+                        if ($this->getServerProtocol() === "https") {
+                            $pattern = '/const serverOptions = \{[\s\S]*?\}[\s\S]*?const server = https\.createServer\(serverOptions, app\);/m';
+                            preg_match($pattern, $serverJsContent, $matches);
+                            $serverOptionsContent = isset($matches[0]) ? trim($matches[0]) : '';
+                            @File::put(base_path('server.js.bak'), $serverOptionsContent);
+                            $serverOptionsContent = str_replace($serverOptionsContent, "const serverOptions = {\n  key: fs.readFileSync('key.pem'),\n  cert: fs.readFileSync('cert.pem')\n}\n\nconst express = require(\"express\");\nconst app = express();\nconst https = require(\"https\");\nconst server = https.createServer(serverOptions, app);", $serverJsContent);
+                            File::put($serverJsPath, $serverOptionsContent);
+                        } else {
+                            // leave http mode unchanged
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('Failed updating server.js for https serverOptions: '.$e->getMessage());
                 }
 
-                $replaceAPP_URL = str_replace(array('https', 'http'), "https", env('APP_URL'));
-                $replaceWA_URL_SERVER = str_replace(array('https', 'http'), "https", env('WA_URL_SERVER'));
-                setEnv('APP_URL', $replaceAPP_URL);
-                setEnv('WA_URL_SERVER', $replaceWA_URL_SERVER);
+                // Normalize APP_URL and WA_URL_SERVER to https (protocol-only)
+                $appUrl = (string) env('APP_URL');
+                $waUrlServer = (string) env('WA_URL_SERVER');
+                $appUrl = preg_replace('/^https?:\/\//i', 'https://', $appUrl);
+                $waUrlServer = preg_replace('/^https?:\/\//i', 'https://', $waUrlServer);
+                setEnv('APP_URL', $appUrl);
+                setEnv('WA_URL_SERVER', $waUrlServer);
             } else {
                 return back()->with('alert', ['type' => 'danger', 'msg' => __('Failed to generate SSL certificate.')]);
             }

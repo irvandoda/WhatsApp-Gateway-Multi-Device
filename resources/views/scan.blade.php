@@ -80,15 +80,222 @@
     if (!is_expired_subscription) {
         let socket;
         let device = '{{ $number->body }}';
-        if ('{{ env('TYPE_SERVER') }}' === 'hosting') {
-            socket = io();
-        } else {
-            socket = io('{{ env('WA_URL_SERVER') }}', {
-                transports: ['websocket', 'polling', 'flashsocket']
+        const TYPE_SERVER = '{{ env('TYPE_SERVER') }}';
+        const WA_URL_SERVER = '{{ env('WA_URL_SERVER') }}';
+
+        function normalizeUrl(url) {
+            try {
+                if (!url) return null;
+                const u = new URL(url.startsWith('http') ? url : ('https://' + url));
+                if (location.protocol === 'https:' && u.protocol === 'http:') {
+                    u.protocol = 'https:';
+                }
+                return u.toString();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function tryConnectSameOrigin(timeoutMs = 3000) {
+            return new Promise((resolve, reject) => {
+                let resolved = false;
+                const s = io({
+                    transports: ['websocket', 'polling']
+                });
+                const timer = setTimeout(() => {
+                    if (!resolved) {
+                        s.close();
+                        reject(new Error('same-origin timeout'));
+                    }
+                }, timeoutMs);
+                s.on('connect', () => {
+                    clearTimeout(timer);
+                    resolved = true;
+                    resolve(s);
+                });
+                s.on('connect_error', (err) => {
+                    clearTimeout(timer);
+                    if (!resolved) {
+                        s.close();
+                        reject(err || new Error('same-origin connect_error'));
+                    }
+                });
             });
         }
 
-        socket.emit('StartConnection', '{{ $number->body }}')
+        function tryConnectFallback(url, timeoutMs = 5000) {
+            return new Promise((resolve, reject) => {
+                if (!url) return reject(new Error('no fallback url'));
+                let resolved = false;
+                const s = io(url, {
+                    transports: ['websocket', 'polling', 'flashsocket']
+                });
+                const timer = setTimeout(() => {
+                    if (!resolved) {
+                        s.close();
+                        reject(new Error('fallback timeout'));
+                    }
+                }, timeoutMs);
+                s.on('connect', () => {
+                    clearTimeout(timer);
+                    resolved = true;
+                    resolve(s);
+                });
+                s.on('connect_error', (err) => {
+                    clearTimeout(timer);
+                    if (!resolved) {
+                        s.close();
+                        reject(err || new Error('fallback connect_error'));
+                    }
+                });
+            });
+        }
+
+        async function initSocket() {
+            try {
+                // Prefer same-origin (works if reverse proxy is configured)
+                socket = await tryConnectSameOrigin();
+            } catch (_) {
+                // Fallback to WA_URL_SERVER if provided
+                const fallback = normalizeUrl(WA_URL_SERVER);
+                if (fallback) {
+                    socket = await tryConnectFallback(fallback);
+                } else {
+                    throw new Error('No available Socket.IO endpoint');
+                }
+            }
+        }
+
+        // HTTP fallback function (same-origin via Nginx proxy)
+        async function useHttpFallback() {
+            try {
+                const startUrl = `/ws/start/${device}`;
+                const qrUrl = `/ws/qrcode/${device}`;
+                const statusUrl = `/ws/status/${device}`;
+                
+                let lastQrTime = 0;
+                let qrRequested = false;
+                
+                const requestNewQr = async () => {
+                    try {
+                        await fetch(startUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                        qrRequested = true;
+                        lastQrTime = Date.now();
+                    } catch (_) {}
+                };
+                
+                // Initial request
+                await requestNewQr();
+                
+                const pollQr = async () => {
+                    try {
+                        const r = await fetch(qrUrl, { cache: 'no-store' });
+                        if (r.ok) {
+                            const j = await r.json();
+                            if (j && j.data) {
+                                $('.imageee').html(`<img src="${j.data}" class="h-[300px] rounded-2xl border border-slate-800" alt="qrcode">`)
+                                $('.statusss').html(`
+                                    <button type="button" disabled
+                                        class="inline-flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
+                                        {{ __('Please scan the QR with your WhatsApp') }}
+                                    </button>
+                                `);
+                                lastQrTime = Date.now();
+                                qrRequested = false;
+                                return true;
+                            }
+                        } else if (r.status === 404) {
+                            // QR not found or expired, request new one
+                            const timeSinceLastQr = Date.now() - lastQrTime;
+                            if (timeSinceLastQr > 20000 || !qrRequested) { // 20 seconds or never requested
+                                console.log('QR expired or not found, requesting new QR...');
+                                await requestNewQr();
+                            }
+                        }
+                    } catch (_) {}
+                    return false;
+                };
+                
+                const pollStatus = async () => {
+                    try {
+                        const r = await fetch(statusUrl, { cache: 'no-store' });
+                        if (r.ok) {
+                            const j = await r.json();
+                            if (j.connected) {
+                                $('.name').html(`{{ __('Name') }} : ${j.user.name}`)
+                                $('.number').html(`{{ __('Number') }} : ${j.user.id}`)
+                                $('.device').html(`{{ __('Device / Token') }} : Not detected - ${device}`)
+                                $('.imageee').html(`<img src="${j.ppUrl}" class="h-[300px] rounded-2xl border border-emerald-500/30" alt="profile">`)
+                                $('.statusss').html(`
+                                    <button type="button" disabled
+                                        class="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+                                        {{ __('Connected') }}
+                                    </button>
+                                `);
+                                $('.logoutbutton').html(`
+                                    <button type="button" id="logout"
+                                        class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200 hover:bg-rose-500/20 transition"
+                                        onclick="logout('${device}')">
+                                        {{ __('Logout') }}
+                                    </button>
+                                `);
+                                return true;
+                            }
+                        }
+                    } catch (_) {}
+                    return false;
+                };
+                
+                // Poll loop
+                let attempts = 0;
+                const interval = setInterval(async () => {
+                    attempts++;
+                    await pollQr();
+                    const ok = await pollStatus();
+                    if (ok || attempts > 300) { // up to ~5 minutes
+                        clearInterval(interval);
+                    }
+                }, 1000);
+                
+                return true;
+            } catch (e) {
+                console.error('HTTP fallback failed:', e);
+                return false;
+            }
+        }
+
+        (async () => {
+            let socketConnected = false;
+            try {
+                await initSocket();
+                socket.on('connect', () => {
+                    socketConnected = true;
+                    socket.emit('StartConnection', device)
+                });
+                if (socket.connected) {
+                    socketConnected = true;
+                    socket.emit('StartConnection', device)
+                }
+                // Give Socket.IO 3 seconds to connect, then fallback
+                setTimeout(async () => {
+                    if (!socketConnected) {
+                        console.log('Socket.IO timeout, switching to HTTP fallback');
+                        await useHttpFallback();
+                    }
+                }, 3000);
+            } catch (err) {
+                console.error('Socket connection failed, switching to HTTP fallback:', err);
+                const ok = await useHttpFallback();
+                if (!ok) {
+                    $('.statusss').html(`
+                        <button type="button" disabled
+                            class="inline-flex items-center gap-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm text-rose-200">
+                            {{ __('Failed to connect to node server') }}
+                        </button>
+                    `);
+                }
+            }
+        })();
         socket.on('qrcode', ({ token, data, message }) => {
             if (token == device) {
                 let url = data

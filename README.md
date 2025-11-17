@@ -145,14 +145,11 @@ bash scripts/setup.sh
 APP_PORT=8000 NODE_ENV=production bash scripts/run-services.sh
 ```
 
-`scripts/setup.sh` akan:
-- memastikan `.env` tersedia dan APP_KEY tergenerate,
-- menjalankan `composer install`, `npm install`, `php artisan migrate --seed`,
-- membuat symlink storage dan mengoptimalkan cache.
+Jika Nginx di server gagal start karena PID stale, jalankan perbaikan otomatis:
 
-> Secara default seeding hanya dijalankan jika tabel `users` masih kosong. Pakai `SEED_DB=always bash scripts/setup.sh` untuk memaksa seeding, atau `SEED_DB=never` jika ingin melewati.
-
-`scripts/run-services.sh` menjalankan tiga proses utama (Laravel HTTP server, queue worker, dan `server.js`) dalam satu terminal. Gunakan `Ctrl+C` untuk mematikan seluruh proses bersamaan. Variabel `APP_HOST`, `APP_PORT`, `QUEUE_WORKER`, dan `NODE_ENV` bisa diisi sesuai kebutuhan sebelum menjalankan skrip.
+```bash
+sudo /www/wwwroot/whatsappgateway.eu.org/scripts/fix-nginx.sh
+```
 
 ---
 

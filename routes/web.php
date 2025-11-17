@@ -26,11 +26,7 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 require_once 'custom-route.php';
 
-<<<<<<< HEAD
-Route::get('/login', function () {
-=======
 Route::get('/', function () {
->>>>>>> 546e81a (Perbaikan Layout masing masing module, role admin pengaturan, fix layout admin settings, auto detect ssl key for https)
     return redirect(LaravelLocalization::getLocalizedURL(null, '/login'));
 });
 
@@ -43,11 +39,7 @@ Route::group(
             \UniSharp\LaravelFilemanager\Lfm::routes();
         });
         Route::get('/', function () {
-<<<<<<< HEAD
-            return redirect()->route('login');
-=======
             return redirect('/login');
->>>>>>> 546e81a (Perbaikan Layout masing masing module, role admin pengaturan, fix layout admin settings, auto detect ssl key for https)
         });
         Route::middleware('auth')->group(function () {
 

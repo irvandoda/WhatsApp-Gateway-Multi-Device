@@ -126,23 +126,32 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
         const ErrorMessage = lastDisconnect.error?.output?.payload?.message;
         const ErrorType = lastDisconnect.error?.output?.payload?.error;
 
+        // Clear keep-alive interval when connection closes
+        if (intervalStore[token]) {
+          clearInterval(intervalStore[token]);
+          delete intervalStore[token];
+        }
+
         if (
           (lastDisconnect?.error instanceof Boom)?.output?.statusCode !==
           DisconnectReason.loggedOut
         ) {
           delete qrcode[token];
-          io?.emit("message", { token: token, message: "Connecting.." });
-          // when refs qr attemts end
+          io?.emit("message", { token: token, message: "Reconnecting.." });
+          // when refs qr attemts end - auto retry after 2 seconds
           if (ErrorMessage == "QR refs attempts ended") {
-            sock[token].ws.close();
+            sock[token]?.ws?.close();
             delete qrcode[token];
             delete pairingCode[token];
             delete sock[token];
-            //   clearConnection(token);
             io?.emit("message", {
               token,
-              message: "Request QR ended. reload web to scan again",
+              message: "QR expired, generating new QR...",
             });
+            // Auto-retry after 2 seconds
+            setTimeout(() => {
+              connectToWhatsApp(token, io, viaOtp);
+            }, 2000);
             return;
           }
           // ahwtsapp disconnect but still have session folder,should be delete
@@ -152,15 +161,33 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
           ) {
             setStatus(token, "Disconnect");
             clearConnection(token);
-            connectToWhatsApp(token, io);
+            // Auto-reconnect after 3 seconds
+            setTimeout(() => {
+              connectToWhatsApp(token, io);
+            }, 3000);
+            return;
           }
           if (ErrorMessage === "Stream Errored (restart required)") {
-            connectToWhatsApp(token, io);
+            // Auto-reconnect after 3 seconds
+            setTimeout(() => {
+              connectToWhatsApp(token, io);
+            }, 3000);
+            return;
           }
 
           if (ErrorMessage === "Connection was lost") {
             delete sock[token];
+            // Auto-reconnect after 5 seconds
+            setTimeout(() => {
+              connectToWhatsApp(token, io);
+            }, 5000);
+            return;
           }
+          
+          // Generic auto-reconnect for other close reasons (except logged out)
+          setTimeout(() => {
+            connectToWhatsApp(token, io);
+          }, 5000);
         } else {
           setStatus(token, "Disconnect");
           console.log("Connection closed. You are logged out.");
@@ -169,7 +196,7 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
             message: "Connection closed. You are logged out.",
           });
           clearConnection(token);
-          connectToWhatsApp(token, io);
+          // Don't auto-reconnect if logged out - user needs to scan QR again
         }
       }
 
@@ -179,7 +206,12 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
         QRCode.toDataURL(qr, function (err, url) {
           if (err) console.log(err);
           qrcode[token] = url;
-          connectToWhatsApp(token, io, viaOtp);
+          // Emit QR to client immediately
+          io?.emit("qrcode", {
+            token,
+            data: url,
+            message: "please scan with your Whatsapp Account",
+          });
         });
       }
       if (connection === "open") {
@@ -197,6 +229,28 @@ const connectToWhatsApp = async (token, io = null, viaOtp = false) => {
         });
         delete qrcode[token];
         delete pairingCode[token];
+        
+        // Start keep-alive interval to maintain connection
+        if (intervalStore[token]) {
+          clearInterval(intervalStore[token]);
+        }
+        // Send presence update every 30 seconds to keep connection alive
+        intervalStore[token] = setInterval(async () => {
+          try {
+            if (sock[token] && sock[token].user) {
+              await sendAvailable(token);
+            }
+          } catch (e) {
+            console.log(`[keep-alive] Error for ${token}:`, e?.message);
+          }
+        }, 30000); // Every 30 seconds
+        
+        // Also send initial presence
+        try {
+          await sendAvailable(token);
+        } catch (e) {
+          console.log(`[initial-presence] Error for ${token}:`, e?.message);
+        }
       }
     }
 
