@@ -18,6 +18,11 @@ const {
 } = require("../lib/middleware");
 //const validation = process.env.AUTH;
 
+// Health check endpoint for Docker
+router.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", service: "wagw-node-worker" });
+});
+
 // sendFile will from here. Delete or comment if no use anymore
 router.get("/", (req, res) => {
   const path = require("path");

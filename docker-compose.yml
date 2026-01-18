@@ -1,0 +1,219 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: wagw_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-wagw_db}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_USER: ${DB_USERNAME:-wagw_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wagw_password}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - wagw_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: wagw_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - wagw_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Laravel Application (PHP-FPM)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wagw_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    networks:
+      - wagw_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    healthcheck:
+      test: ["CMD", "php-fpm-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: wagw_nginx
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+      - "${APP_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - wagw_network
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Node.js WhatsApp Worker
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: wagw_node
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+      - credentials:/app/credentials
+    ports:
+      - "${NODE_PORT:-3000}:3000"
+    networks:
+      - wagw_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT_NODE=${NODE_PORT:-3000}
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=${DB_USERNAME:-wagw_user}
+      - DATABASE_PASSWORD=${DB_PASSWORD:-wagw_password}
+      - DATABASE_NAME=${DB_DATABASE:-wagw_db}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Laravel Queue Worker
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wagw_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - wagw_network
+    depends_on:
+      - app
+      - mysql
+      - redis
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: php artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep '[q]ueue:work' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Laravel Scheduler (Cron)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wagw_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - wagw_network
+    depends_on:
+      - app
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run --verbose --no-interaction &
+        sleep 60
+      done"
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep '[s]chedule:run' || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # phpMyAdmin (Optional - for database management)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: wagw_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=${DB_USERNAME:-wagw_user}
+      - PMA_PASSWORD=${DB_PASSWORD:-wagw_password}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-rootpassword}
+    networks:
+      - wagw_network
+    depends_on:
+      - mysql
+
+networks:
+  wagw_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  node_modules:
+    driver: local
+  credentials:
+    driver: local

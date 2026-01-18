@@ -8,6 +8,7 @@ Hybrid WhatsApp Automation Platform for high-volume and multi-user messaging
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-purple.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green.svg)
 ![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
 
 ---
 
@@ -261,21 +262,29 @@ Hybrid WhatsApp Automation Platform for high-volume and multi-user messaging
 git clone https://github.com/irvandoda/WhatsApp-Gateway-Multi-Device.git wagw
 cd wagw
 
-# 2. Setup environment
-cp .env.example .env
-# Edit .env with your configuration
+# 2. Setup environment (Linux/Mac)
+cp env.docker.example .env
+# Or use the quick start script
+chmod +x docker-start.sh
+./docker-start.sh
 
-# 3. Start all services (Laravel, MySQL, Redis, Node.js, phpMyAdmin)
+# 2. Setup environment (Windows)
+# Copy env.docker.example to .env
+# Or use PowerShell script
+.\docker-start.ps1
+
+# 3. Manual Docker setup (if not using scripts)
+docker-compose build
 docker-compose up -d
-
-# 4. Run migrations and seed
 docker-compose exec app php artisan migrate --seed
 
-# 5. Access application
-# - Laravel App: http://localhost:8000
-# - phpMyAdmin: http://localhost:8080
+# 4. Access application
+# - Laravel App: http://localhost
 # - Node.js Worker: http://localhost:3000
+# - phpMyAdmin: http://localhost:8080
 ```
+
+**📚 For detailed Docker documentation, see [DOCKER.md](DOCKER.md)**
 
 ### Option 2: Manual Installation
 
