@@ -1,0 +1,80 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mpwa-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-mpwa_root_pass}
+      MYSQL_DATABASE: ${DB_DATABASE:-mpwa}
+      MYSQL_USER: ${DB_USERNAME:-mpwa_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-mpwa_pass}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - mpwa-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-mpwa_root_pass}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MPWA Application (Laravel + Node.js)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mpwa-app
+    restart: unless-stopped
+    environment:
+      - APP_NAME=${APP_NAME:-MPWA}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-http://localhost}
+      - WA_URL_SERVER=${WA_URL_SERVER:-http://localhost}
+      - PORT_NODE=${PORT_NODE:-3100}
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-mpwa}
+      - DB_USERNAME=${DB_USERNAME:-mpwa_user}
+      - DB_PASSWORD=${DB_PASSWORD:-mpwa_pass}
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=sync
+      - THEME_NAME=${THEME_NAME:-vuexy}
+      - THEME_INDEX=${THEME_INDEX:-vuexy}
+      - ENABLE_INDEX=${ENABLE_INDEX:-yes}
+      - REGISTERATION=${REGISTERATION:-true}
+      - TRIAL_MESSAGE_LIMIT=${TRIAL_MESSAGE_LIMIT:-50}
+      - TRIAL_DEVICES_LIMIT=${TRIAL_DEVICES_LIMIT:-1}
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./credentials:/var/www/html/credentials
+      - ./public/storage:/var/www/html/public/storage
+      - ./.env:/var/www/html/.env
+    ports:
+      - "${APP_PORT:-8000}:80"
+      - "${PORT_NODE:-3100}:3100"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mpwa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mpwa-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

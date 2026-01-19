@@ -1,0 +1,99 @@
+# Laravel & PHP
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# IDE
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Composer
+composer.phar
+composer.lock
+
+# NPM
+package-lock.json
+node_modules/
+
+# Docker
+.env.docker
+docker-compose.override.yml
+
+# Credentials & Sensitive Files
+/credentials/*
+!credentials/.gitkeep
+/storage/app/file-manager/*
+/storage/app/files/*
+/storage/app/temp/*
+/storage/app/wachecker/*
+/storage/app/cronjob/*
+!/storage/app/cronjob/.gitkeep
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Backups
+/backups/*
+!backups/.gitkeep
+*.sql
+*.sql.gz
+*.backup
+
+# Test files
+test-install.php
+test-install-debug.php
+test-post.sh
+
+# SSL Certificates
+*.pem
+*.crt
+*.key
+*.csr
+/docker/ssl/*
+!docker/ssl/.gitkeep
+
+# Public uploads
+/public/storage/files/*
+/public/storage/images/*
+/public/storage/photos/*
+/public/storage/whatsapp_products/*
+/public/storage/number-checker/*
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS Files
+Thumbs.db
+.DS_Store
+.directory
+
+# GitHub Token (NEVER COMMIT THIS!)
+.git-credentials
+github-token.txt
+
+# Personal notes
+NOTES.md
+TODO.md
+PRIVATE-*.md

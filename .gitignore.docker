@@ -1,0 +1,55 @@
+# Docker specific
+.env
+.env.local
+docker-compose.override.yml
+
+# Backups
+backups/
+*.sql
+*.tar.gz
+*.zip
+
+# Credentials
+credentials/*
+!credentials/.gitkeep
+
+# Storage
+storage/app/*
+!storage/app/.gitkeep
+!storage/app/public
+storage/app/public/*
+!storage/app/public/.gitkeep
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+!storage/framework/cache/data
+storage/framework/cache/data/*
+!storage/framework/cache/data/.gitkeep
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+storage/framework/views/*
+!storage/framework/views/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+
+# Bootstrap cache
+bootstrap/cache/*
+!bootstrap/cache/.gitkeep
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Composer
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

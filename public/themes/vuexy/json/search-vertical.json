@@ -1,0 +1,146 @@
+{
+  "navigation": {
+    "Dashboards": [
+      {
+        "name": "Dashboard",
+        "icon": "tabler-dashboard",
+        "url": "/home"
+      },
+      {
+        "name": "Devices",
+        "icon": "tabler-device-mobile",
+        "url": "/devices"
+      },
+      {
+        "name": "File Manager",
+        "icon": "tabler-cloud-up",
+        "url": "/file-manager"
+      },
+      {
+        "name": "Phone Book",
+        "icon": "tabler-notebook",
+        "url": "/phonebook"
+      }
+    ],
+    "Reports": [
+      {
+        "name": "Campaign / Blast",
+        "icon": "tabler-report",
+        "url": "/campaigns"
+      },
+      {
+        "name": "Messages History",
+        "icon": "tabler-report",
+        "url": "/messages-history"
+      }
+    ],
+    "Tickets": [
+      {
+        "name": "Tickets",
+        "icon": "tabler-ticket",
+        "url": "/tickets"
+      }
+    ],
+    "Device tools": [
+      {
+        "name": "Auto Reply",
+        "icon": "tabler-message-2",
+        "url": "/autoreply"
+      },
+      {
+        "name": "AI Bot",
+        "icon": "tabler-robot",
+        "url": "/aibot"
+      },
+      {
+        "name": "Create Campaign",
+        "icon": "tabler-brand-campaignmonitor",
+        "url": "/campaign/create"
+      },
+      {
+        "name": "Test Message",
+        "icon": "tabler-mail",
+        "url": "/message/test"
+      }
+    ],
+    "Developers": [
+      {
+        "name": "API Docs",
+        "icon": "tabler-api-app",
+        "url": "/api-docs"
+      }
+    ]
+  },
+  "suggestions": {
+    "Dashboards": [
+      {
+        "name": "Dashboard",
+        "icon": "tabler-dashboard",
+        "url": "/home"
+      },
+      {
+        "name": "Devices",
+        "icon": "tabler-device-mobile",
+        "url": "/devices"
+      },
+      {
+        "name": "File Manager",
+        "icon": "tabler-cloud-up",
+        "url": "/file-manager"
+      },
+      {
+        "name": "Phone Book",
+        "icon": "tabler-notebook",
+        "url": "/phonebook"
+      }
+    ],
+	"Device tools": [
+      {
+        "name": "Auto Reply",
+        "icon": "tabler-message-2",
+        "url": "/autoreply"
+      },
+      {
+        "name": "AI Bot",
+        "icon": "tabler-robot",
+        "url": "/aibot"
+      },
+      {
+        "name": "Create Campaign",
+        "icon": "tabler-brand-campaignmonitor",
+        "url": "/campaign/create"
+      },
+      {
+        "name": "Test Message",
+        "icon": "tabler-mail",
+        "url": "/message/test"
+      }
+    ],
+    "Reports": [
+      {
+        "name": "Campaign / Blast",
+        "icon": "tabler-report",
+        "url": "/campaigns"
+      },
+      {
+        "name": "Messages History",
+        "icon": "tabler-report",
+        "url": "/messages-history"
+      }
+    ],
+    "Tickets": [
+      {
+        "name": "Tickets",
+        "icon": "tabler-ticket",
+        "url": "/tickets"
+      }
+    ],
+    "Developers": [
+      {
+        "name": "API Docs",
+        "icon": "tabler-api-app",
+        "url": "/api-docs"
+      }
+    ]
+  }
+}
